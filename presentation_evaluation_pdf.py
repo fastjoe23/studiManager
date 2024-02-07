@@ -5,13 +5,13 @@ class EvaluationCreationError(Exception):
     pass
 
 class PresentationEvaluationPDF(FPDF):
-    def __init__(self, savePath,  evaluation_type, course_name, topic, lecturers, student, date, time):
+    def __init__(self, save_path,  evaluation_type, course_name, topic, lecturers, student, date, time):
         super().__init__()
-        self.savePath = savePath
+        self.save_path = save_path
         self.topic = topic
         self.course_name = course_name
         self.lecturers = lecturers
-        self.studentName = student
+        self.student_name = student
         self.evaluation_type = evaluation_type
         self.date = date
         self.time = time
@@ -31,7 +31,7 @@ class PresentationEvaluationPDF(FPDF):
             self.add_page()
 
             self.chapter_title(f"Titel: {self.topic}")
-            self.chapter_title(f"Vortragende: {self.studentName}")
+            self.chapter_title(f"Vortragende: {self.student_name}")
             self.chapter_title(f"Datum: {self.date}, {self.time} Uhr")
             self.chapter_title(f"Prüfer: {', '.join(str(x) for x in self.lecturers)} ")
             self.ln(3)
@@ -93,7 +93,7 @@ class PresentationEvaluationPDF(FPDF):
             signature_lines += "\n"
             self.multi_cell(w=500, text=signature_lines)
 
-            pdf_file_path = self.savePath + f"/{str(self.course_name)}_{str(self.evaluation_type).replace(' ','')}_{str(self.studentName).replace(' ','')}_Bewertungsbogen.pdf"
+            pdf_file_path = self.save_path + f"/{str(self.course_name)}_{str(self.evaluation_type).replace(' ','')}_{str(self.student_name).replace(' ','')}_Bewertungsbogen.pdf"
             self.output(pdf_file_path)
             return pdf_file_path
         

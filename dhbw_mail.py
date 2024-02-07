@@ -8,37 +8,37 @@ from config import Config
 class DHBWMail:
     def __init__(self):
         config = Config()
-        self.smtpServer = config.smtpServer
-        self.smtpPort = config.smtpPort
-        self.username = config.smtpUsername
-        self.password = config.smtpPassword
+        self.smtp_server = config.smtp_server
+        self.smtp_port = config.smtp_port
+        self.username = config.smtp_username
+        self.password = config.smtp_password
 
-    def sendEmail(self, toAddress, ccAddress=None, subject='', body='', attachmentPath=None):
-        result= {'success': False, 'errorMessage': ''}
+    def send_email(self, to_address, cc_address=None, subject='', body='', attachment_path=None):
+        result= {'success': False, 'error_message': ''}
         msg = MIMEMultipart()
         msg['From'] = self.username
-        msg['To'] = toAddress
-        msg['Cc'] = ccAddress
+        msg['To'] = to_address
+        msg['Cc'] = cc_address
         msg['Subject'] = subject
         msg.attach(MIMEText(body, 'plain'))
 
-        if attachmentPath:
-            attachment = self._createAttachment(attachmentPath)
+        if attachment_path:
+            attachment = self._create_attachment(attachment_path)
             msg.attach(attachment)
 
         try:
-            with smtplib.SMTP(self.smtpServer, self.smtpPort) as server:
+            with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
                 server.starttls()
                 server.login(self.username, self.password)
-                recipients = [toAddress] + [ccAddress] if ccAddress else [toAddress]
+                recipients = [to_address] + [cc_address] if cc_address else [to_address]
                 server.sendmail(self.username, recipients, msg.as_string())
                 result['success'] = True
         except Exception as e:
-            result['errorMessage'] = str(e)
+            result['error_message'] = str(e)
         
         return result
 
-    def _createAttachment(self, file_path):
+    def _create_attachment(self, file_path):
         attachment = MIMEBase('application', 'octet-stream')
         attachment.set_payload(open(file_path, 'rb').read())
         encoders.encode_base64(attachment)

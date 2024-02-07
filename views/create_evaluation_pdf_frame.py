@@ -6,7 +6,7 @@ from tkinter import filedialog
 
 
 class CreateEvaluationPDFWindow(tk.Toplevel):
-    def __init__(self, parent, courseId, *args, **kwargs):
+    def __init__(self, parent, course_id, *args, **kwargs):
         tk.Toplevel.__init__(self, parent, *args, **kwargs)
         self.title("Begutachtungsformulare erzeugen")
 
@@ -15,52 +15,52 @@ class CreateEvaluationPDFWindow(tk.Toplevel):
         self.label.pack(pady=10)
 
         # Dropdown-Menü für Projektauswahl
-        self.typeVar = tk.StringVar()
+        self.type_var = tk.StringVar()
         types = ["Projektarbeit 1", "Projektarbeit 2", "Bachelorarbeit"]
-        self.typeDropdown = ttk.Combobox(self, textvariable=self.typeVar, values=types, state="readonly")
-        self.typeDropdown.pack(pady=10)
+        self.type_dropdown = ttk.Combobox(self, textvariable=self.type_var, values=types, state="readonly")
+        self.type_dropdown.pack(pady=10)
 
         # Button für die Speicherortauswahl
-        browseButton = tk.Button(self, text="Speicherort auswählen", command=self.selectOutputDirectory)
-        browseButton.pack(pady=10)
+        browse_button = tk.Button(self, text="Speicherort auswählen", command=self.select_output_directory)
+        browse_button.pack(pady=10)
 
         # Eingabefeld für Dateipfad
-        self.savePathEntry = tk.Entry(self, width=40)
-        self.savePathEntry.pack(pady=5)
+        self.save_path_entry = tk.Entry(self, width=40)
+        self.save_path_entry.pack(pady=5)
 
         # Button 
         button_frame = tk.Frame(self)
         button_frame.pack(side=tk.BOTTOM, pady=10)
 
-        parseButton = tk.Button(button_frame, text="Formulare generieren", command=lambda: self.generatePDFs(courseId))
-        parseButton.pack(side=tk.LEFT, padx=10)
+        parse_button = tk.Button(button_frame, text="Formulare generieren", command=lambda: self.generate_pdfs(course_id))
+        parse_button.pack(side=tk.LEFT, padx=10)
 
         cancel_button = tk.Button(button_frame, text="Abbrechen", command=self.destroy)
         cancel_button.pack(side=tk.RIGHT, padx=10)
 
-    def selectOutputDirectory(self):
-        savePath = filedialog.askdirectory()
-        if savePath:
-            self.savePathEntry.delete(0, tk.END)
-            self.savePathEntry.insert(tk.END, savePath)
+    def select_output_directory(self):
+        save_path = filedialog.askdirectory()
+        if save_path:
+            self.save_path_entry.delete(0, tk.END)
+            self.save_path_entry.insert(tk.END, save_path)
 
-    def generatePDFs(self, courseId):
+    def generate_pdfs(self, course_id):
         # Typ der Formulare ermitteln
-        type = self.typeDropdown.get()
+        type = self.type_dropdown.get()
         # Speicherort ermitteln
-        savePath = self.savePathEntry.get()
+        save_path = self.save_path_entry.get()
 
         # Überprüfe, ob Speicherort und Type ausgewählt wurde
-        if savePath and type:
+        if save_path and type:
             try:
                 # Rufe die Methode zum Importieren von Studenten in den Kurs auf
-                generatedPDFs = self.master.master.controller.generatedEvaluationPDFs(savePath, type, courseId)
-                if len(generatedPDFs) == 1:
-                    messageText = f"Es wurde ein Formular erfolgreich erzeugt."
+                generated_pDFs = self.master.master.controller.generated_evaluation_pdfs(save_path, type, course_id)
+                if len(generated_pDFs) == 1:
+                    message_text = "Es wurde ein Formular erfolgreich erzeugt."
                 else:
-                    messageText = f"Es wurden {len(generatedPDFs)} Formulare erfolgreich erzeugt."
+                    message_text = f"Es wurden {len(generated_pDFs)} Formulare erfolgreich erzeugt."
                     
-                messagebox.showinfo("Formulargenerierung", messageText)
+                messagebox.showinfo("Formulargenerierung", message_text)
 
             except Exception as e:
                 # Zeige eine Messagebox mit dem Inhalt der Exception an

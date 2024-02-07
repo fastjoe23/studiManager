@@ -4,45 +4,45 @@ import sqlite3
 class Config:
     def __init__(self):
         # Konstante Werte
-        self.appName = "DHBW Student Management System"
+        self.app_name = "DHBW Student Management System"
         self.version = "0.1"
-        self.dataBaseName = "studiManagerDatabase.db"
-        self.dataBaseVersion = "0.1"
+        self.data_base_name = "studiManagerDatabase.db"
+        self.data_base_version = "0.1"
         # Werte für Email-Versand aus DB holen
-        self.connectToDatabase()
-        self.smtpServer = self.getSmtpServer()
-        self.smtpPort = self.getSmtpPort()
-        self.smtpUsername = self.getSmtpUsername()
-        self.smtpPassword = self.getSmtpPassword()
+        self.connect_to_database()
+        self.smtp_server = self.get_smtp_server()
+        self.smtp_port = self.get_smtp_port()
+        self.smtp_username = self.get_smtp_username()
+        self.smtp_password = self.get_smtp_password()
 
-    def connectToDatabase(self):
-        self.conn = sqlite3.connect(self.dataBaseName)
+    def connect_to_database(self):
+        self.conn = sqlite3.connect(self.data_base_name)
         self.cursor = self.conn.cursor()
 
-    def getSmtpServer(self):
-        retValue = self.getAttributeFromDB("SmtpServer")
-        return self._decode(retValue)
+    def get_smtp_server(self):
+        ret_value = self.get_attribute_from_db("SmtpServer")
+        return self._decode(ret_value)
 
-    def getSmtpPort(self):
-        return self._decode(self.getAttributeFromDB("SmtpPort"))
+    def get_smtp_port(self):
+        return self._decode(self.get_attribute_from_db("SmtpPort"))
     
-    def getSmtpUsername(self):
-        return self._decode(self.getAttributeFromDB("SmtpUsername"))
+    def get_smtp_username(self):
+        return self._decode(self.get_attribute_from_db("SmtpUsername"))
     
-    def getSmtpPassword(self):
-        return self._decode(self.getAttributeFromDB("SmtpPassword"))
+    def get_smtp_password(self):
+        return self._decode(self.get_attribute_from_db("SmtpPassword"))
     
-    def setSmtpServer(self):
-        self.saveAttributeToDB("SmtpServer", self._encode(self.smtpServer))
+    def set_smtp_server(self):
+        self.save_attribute_to_dB("SmtpServer", self._encode(self.smtp_server))
 
-    def setSmtpPort(self):
-        self.saveAttributeToDB("SmtpPort", self._encode(self.smtpPort))
+    def set_smtp_port(self):
+        self.save_attribute_to_dB("SmtpPort", self._encode(self.smtp_port))
     
-    def setSmtpUsername(self):
-        self.saveAttributeToDB("SmtpUsername", self._encode(self.smtpUsername))
+    def set_smtp_username(self):
+        self.save_attribute_to_dB("SmtpUsername", self._encode(self.smtp_username))
     
-    def setSmtpPassword(self):
-        self.saveAttributeToDB("SmtpPassword", self._encode(self.smtpPassword))
+    def set_smtp_password(self):
+        self.save_attribute_to_dB("SmtpPassword", self._encode(self.smtp_password))
 
     def _encode(self, value):
         if value:
@@ -56,13 +56,13 @@ class Config:
         else:
             return None
 
-    def saveConfig(self):
-        self.setSmtpServer()
-        self.setSmtpPort()
-        self.setSmtpUsername()
-        self.setSmtpPassword()
+    def save_config(self):
+        self.set_smtp_server()
+        self.set_smtp_port()
+        self.set_smtp_username()
+        self.set_smtp_password()
 
-    def getAttributeFromDB(self, attribute):
+    def get_attribute_from_db(self, attribute):
         # Daten aus der Datenbank abfragen
         self.cursor.execute('SELECT value FROM config WHERE attribute = ?', (attribute,))
 
@@ -72,7 +72,7 @@ class Config:
         # Verbindung schließen
         return result[0] if result else None
     
-    def saveAttributeToDB(self, attribute, value):
+    def save_attribute_to_dB(self, attribute, value):
         if value:
             self.cursor.execute('''
                 INSERT OR IGNORE INTO config (attribute, value)

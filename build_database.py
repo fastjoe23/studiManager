@@ -1,13 +1,9 @@
 import sqlite3
-from config import Config
-
-# get config infos
-#configs = Config()
-databaseName = 'studiManagerDatabase.db' #configs.dataBaseName
+DATABASE_NAME = 'studimanagerDatabase.db' #configs.data_base_Name
 
 def create_database():
     # Verbindung zur Datenbank herstellen (dies erstellt die Datenbank, wenn sie nicht vorhanden ist)
-    conn = sqlite3.connect(databaseName)
+    conn = sqlite3.connect(DATABASE_NAME)
 
     # Cursor erstellen
     cursor = conn.cursor()
@@ -23,74 +19,74 @@ def create_database():
     # Tabelle für Personen erstellen
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS persons (
-            personId INTEGER PRIMARY KEY AUTOINCREMENT,
-            firstName TEXT,
-            lastName TEXT,
+            person_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            first_name TEXT,
+            last_name TEXT,
             email TEXT,
-            creationDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(personId)
+            creation_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(person_id)
         )
     ''')
 
     # Tabelle für Studenten erstellen (erbt von Personen)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS students (
-            studentId INTEGER PRIMARY KEY AUTOINCREMENT,
-            personId INTEGER UNIQUE,
+            student_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            person_id INTEGER UNIQUE,
             company TEXT,
-            matNumber INTEGER,
+            mat_number INTEGER,
             enrolled INTEGER,
-            creationDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (personId) REFERENCES persons (personId) ON DELETE CASCADE
+            creation_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (person_id) REFERENCES persons (person_id) ON DELETE CASCADE
         )
     ''')
 
     # Tabelle für Kurse erstellen
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS courses (
-            courseId INTEGER PRIMARY KEY AUTOINCREMENT,
-            courseName TEXT,
-            startDate TEXT,
-            creationDate DATETIME DEFAULT CURRENT_TIMESTAMP
+            course_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            course_name TEXT,
+            start_date TEXT,
+            creation_date DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     ''')
 
     # Tabelle für Gutachter / Dozenten erstellen
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS lecturers (
-            lecturerId INTEGER PRIMARY KEY AUTOINCREMENT,
-            personId INTEGER UNIQUE,
+            lecturer_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            person_id INTEGER UNIQUE,
             company TEXT,
-            creationDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (personId) REFERENCES persons (personId)
+            creation_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (person_id) REFERENCES persons (person_id)
         )
     ''')
 
         # Tabelle für studentische Arbeiten erstellen
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS assignments (
-            assignmentId INTEGER PRIMARY KEY AUTOINCREMENT,
-            studentId INTEGER,
-            lecturerId INTEGER,
+            assignment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_id INTEGER,
+            lecturer_id INTEGER,
             type TEXT, 
             topic TEXT,
             grade REAL,
             date TEXT,
             time TEXT,
-            creationDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (studentId) REFERENCES students (studentId),
-            FOREIGN KEY (lecturerId) REFERENCES lecturers (lecturerId)
+            creation_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (student_id) REFERENCES students (student_id),
+            FOREIGN KEY (lecturer_id) REFERENCES lecturers (lecturer_id)
         )
     ''')
 
     # enrollments Tabelle 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS enrollments (
-            enrollmentId INTEGER PRIMARY KEY AUTOINCREMENT,
-            studentId INTEGER,
-            courseId INTEGER,
-            FOREIGN KEY (studentId) REFERENCES students (studentId),
-            FOREIGN KEY (courseId) REFERENCES courses (courseId)
+            enrollment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_id INTEGER,
+            course_id INTEGER,
+            FOREIGN KEY (student_id) REFERENCES students (student_id),
+            FOREIGN KEY (course_id) REFERENCES courses (course_id)
         )
     ''')
 

@@ -1,4 +1,3 @@
-import base64
 import tkinter as tk
 from tkinter import ttk
 from config import Config
@@ -24,10 +23,10 @@ class EmailSettingsWindow(tk.Toplevel):
             ttk.Label(frame, text=label).grid(row=i, column=0, sticky=tk.W, pady=7,padx=5)
             ttk.Entry(frame, textvariable=self.entry_vars[label], width=40).grid(row=i, column=1, sticky=(tk.W, tk.E), padx=10, pady=7)
 
-        buttonFrame = ttk.Frame(self, padding="10")
-        buttonFrame.grid(row=1, column=0, columnspan=2)
-        ttk.Button(buttonFrame, text="Speichern", command=self.save_settings).pack(side=tk.LEFT)
-        ttk.Button(buttonFrame, text="Abbrechen", command=self.destroy).pack(side=tk.LEFT, padx=20)
+        button_frame = ttk.Frame(self, padding="10")
+        button_frame.grid(row=1, column=0, columnspan=2)
+        ttk.Button(button_frame, text="Speichern", command=self.save_settings).pack(side=tk.LEFT)
+        ttk.Button(button_frame, text="Abbrechen", command=self.destroy).pack(side=tk.LEFT, padx=20)
 
         # Lade vorhandene Einstellungen, falls vorhanden
         self.load_settings()     
@@ -35,13 +34,13 @@ class EmailSettingsWindow(tk.Toplevel):
     def load_settings(self):
         for label, var in self.entry_vars.items():
             if label == "SmtpServer":
-                value = self.config.smtpServer
+                value = self.config.smtp_server
             elif label == "SmtpPort":
-                value = self.config.smtpPort
+                value = self.config.smtp_port
             elif label == "Username":
-                value = self.config.smtpUsername
+                value = self.config.smtp_username
             elif label == "Passwort":
-                value = self.config.smtpPassword
+                value = self.config.smtp_password
             else:
                 print("This should never happen.")                        
 
@@ -53,16 +52,16 @@ class EmailSettingsWindow(tk.Toplevel):
             # Daten aus Eingabefeldern in die config-Attribute schreiben
         for label, var in self.entry_vars.items():
             if label == "SmtpServer":
-                self.config.smtpServer = var.get()
+                self.config.smtp_server = var.get()
             elif label == "SmtpPort":
-                self.config.smtpPort = var.get()
+                self.config.smtp_port = var.get()
             elif label == "Username":
-                self.config.smtpUsername = var.get()
+                self.config.smtp_username = var.get()
             elif label == "Passwort":
-                self.config.smtpPassword = var.get()
+                self.config.smtp_password = var.get()
             else:
                 print("This should never happen.")
 
-        self.config.saveConfig()
+        self.config.save_config()
         self.destroy()
         
