@@ -1,0 +1,22 @@
+# Ignoriere generierte Python-Dateien und Ordner
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyz
+*.pyw
+*.pyproj
+*.pycproj
+
+# Ignoriere virtuelle Umgebungen
+venv/
+env/
+
+# Ignoriere config.json im Root-Verzeichnis
+config.json
+
+# Ignoriere alle Datenbank-Files
+*.db
+
+# Ignoriere test_DHBWMail.py im tests-Ordner
+tests/test_dhbwMail.py
