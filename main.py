@@ -71,8 +71,6 @@ class Main_application(tk.Tk):
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
     def show_all_courses(self):
-        # hole alle Kurse aus der Datenbank
-        self.courses = Course()
         # Ersetze den aktuellen Frame durch den Kurse-Frame
         self.main_frame.destroy()
         self.main_frame = CoursesFrame(self)
@@ -85,8 +83,6 @@ class Main_application(tk.Tk):
         add_person_window.wait_window()
 
     def show_all_persons(self):
-        # hole alle Personen aus der Datenbank
-        self.persons = Person()
         # Ersetze den aktuellen Frame durch den Personen-Frame
         self.main_frame.destroy()
         self.main_frame = PersonsFrame(self)
@@ -99,8 +95,6 @@ class Main_application(tk.Tk):
         add_person_window.wait_window()
 
     def show_all_students(self):
-        # hole alle Studenten aus der Datenbank
-        self.students = Student()
         # Ersetze den aktuellen Frame durch den Studenten-Frame 
         self.main_frame.destroy()
         # Hier kommt der entsprechende Frame für die Anzeige der Studenten
@@ -114,8 +108,7 @@ class Main_application(tk.Tk):
         add_student_window.wait_window()
     
     def show_all_lecturers(self):
-        # hole alle Dozenten aus der Datenbank
-        self.lecturers = Lecturer()
+
         # Ersetze den aktuellen Frame durch den Dozenten-Frame 
         self.main_frame.destroy()
         # Hier kommt der entsprechende Frame für die Anzeige der Dozenten
@@ -129,16 +122,12 @@ class Main_application(tk.Tk):
         add_lecturer_window.wait_window()
 
     def show_all_enrollments(self):
-        # hole alle Kurse aus der Datenbank
-        self.enrollments = Enrollments()
         # Ersetze den aktuellen Frame durch den Kurse-Frame
         self.main_frame.destroy()
         self.main_frame = EnrollmentsFrame(self)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
     def show_all_assignments(self):
-        # hole alle Kurse aus der Datenbank
-        self.assignments = Assignments()
         # Ersetze den aktuellen Frame durch den Kurse-Frame
         self.main_frame.destroy()
         self.main_frame = AssignmentsFrame(self)

@@ -154,7 +154,10 @@ class StudentManagerController:
     
     def read_all_assignments_by_student_id(self, student_id):
         return self.model.assignments.read_all_assignments_by_student_id(student_id)
-    
+
+    def read_all_assignments_by_lecturer_id(self, lecturer_id):
+        return self.model.assignments.read_all_assignments_by_lecturer_id(lecturer_id)
+        
     def delete_assignment(self, assignment_id):
         return self.model.assignments.delete_assignment(assignment_id)
 

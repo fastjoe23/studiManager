@@ -9,7 +9,7 @@ conn = sqlite3.connect(DATABASE_NAME)
 cursor = conn.cursor()
 
 print("Vorm Löschen")
-cursor.execute('SELECT * FROM config')
+cursor.execute('SELECT * FROM students')
 result_list = cursor.fetchall()
 for row in result_list:
     print(row)

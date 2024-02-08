@@ -246,20 +246,20 @@ class Student(Person):
             return None
 
     def read_student_from_db(self, student_id):
-        self.cursor.execute('SELECT * FROM students WHERE student_id = ?',(student_id,))
+        self.cursor.execute('SELECT * FROM students WHERE student_id = ?',(student_id, ))
         return self.cursor.fetchone()
 
     def read_student_by_person_id(self, person_id):
         # Studentendaten holen
         student = Student()
-        student_dBDump = self.read_student_from_db_by_person_id(person_id)
+        student_db_dump = self.read_student_from_db_by_person_id(person_id)
 
-        if student_dBDump:
-            student.student_id = student_dBDump[0]
-            student.person_id = student_dBDump[1]
-            student.company = student_dBDump[2]
-            student.mat_number = student_dBDump[3]
-            student.enrolled = bool(student_dBDump[4])
+        if student_db_dump:
+            student.student_id = student_db_dump[0]
+            student.person_id = student_db_dump[1]
+            student.company = student_db_dump[2]
+            student.mat_number = student_db_dump[3]
+            student.enrolled = bool(student_db_dump[4])
 
             # Personendaten ergaenzen
             student_person = self.read_person_by_id(student.person_id)
@@ -750,6 +750,24 @@ class Assignments:
 
         return Assignments_list
     
+    def read_all_assignments_by_student_id_from_db(self, student_id):
+        self.cursor.execute('SELECT * FROM assignments WHERE student_id = ?', (student_id, ))
+        return self.cursor.fetchall()
+    
+    def read_all_assignments_by_lecturer_id(self, lecturer_id):
+        assignments_dBDump = self.read_all_assignments_by_lecturer_id_from_db(lecturer_id)
+
+        Assignments_list = []
+        for row in assignments_dBDump:
+            new_assignment = self.create_assignment_from_db_dump(row)
+            Assignments_list.append(new_assignment)
+
+        return Assignments_list
+
+    def read_all_assignments_by_lecturer_id_from_db(self, lecturer_id):
+        self.cursor.execute('SELECT * FROM assignments WHERE lecturer_id = ?', (lecturer_id, ))
+        return self.cursor.fetchall()    
+
     def create_assignment_from_db_dump(self, assignment_dump):
         # Assignment aus DB Dump
         
@@ -767,10 +785,6 @@ class Assignments:
         new_assignment.time = assignment_dump[7]
         
         return new_assignment
-
-    def read_all_assignments_by_student_id_from_db(self, student_id):
-        self.cursor.execute('SELECT * FROM assignments WHERE student_id = ?', (student_id, ))
-        return self.cursor.fetchall()
 
     def update_assignment(self, assignment_id, student_id, lecturer_id, type, topic, grade, date, time):
         # Aktualisiere die Informationen der Arbeit

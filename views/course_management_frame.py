@@ -23,7 +23,7 @@ class CourseManagementFrame(tk.Frame):
         actions_frame.pack(side=tk.LEFT, padx=10, pady=10)
 
         course_namelabel = tk.Label(actions_frame, text=course.course_name, font=font.Font(family="Arial", size=16, weight="bold"))
-        course_namelabel.pack(pady=50)
+        course_namelabel.pack(pady=10)
 
        # Setzen Sie eine einheitliche Breite für alle Buttons
         button_width = 25
@@ -37,8 +37,12 @@ class CourseManagementFrame(tk.Frame):
         create_evaluation_pdfs_button = tk.Button(actions_frame, text="Begutachtungsformulare erstellen", command=lambda: self.create_evaluation_pdfs(course_id), width=button_width)
         create_evaluation_pdfs_button.pack(pady=5)
 
+        # Horizontaler Abstandhalter
+        spacer_horizontal = tk.Label(actions_frame, text=" ")
+        spacer_horizontal.pack(pady=30)
+
         label_helpers = tk.Label(actions_frame,text="Hilfsfunktionen",fg="grey")
-        label_helpers.pack(pady=20)
+        label_helpers.pack(pady=10)
 
         import_list_button = tk.Button(actions_frame, text="Kurs aus Liste einlesen", command=lambda: self.import_course_from_list(course_id), width=button_width)
         import_list_button.pack(pady=5)
@@ -52,8 +56,12 @@ class CourseManagementFrame(tk.Frame):
         generate_assignment_list_button = tk.Button(actions_frame, text="Blanko Arbeiten Liste generieren", command=lambda: self.generate_assignment_list(course_id), width=button_width)
         generate_assignment_list_button.pack(pady=5)
 
+        # Horizontaler Abstandhalter
+        spacer_horizontal = tk.Label(actions_frame, text=" ")
+        spacer_horizontal.pack(pady=25)
+
         close_course_button = tk.Button(actions_frame, text="Kurs verlassen", command=lambda: self.close_course_management(course_id), width=button_width)
-        close_course_button.pack(pady=25)        
+        close_course_button.pack(pady=10)        
 
         # Rechter Teil für Liste der eingeschriebenen Studenten und Notiz
         right_frame = tk.Frame(self)
@@ -62,9 +70,9 @@ class CourseManagementFrame(tk.Frame):
         students_frame.pack()
 
         # Tabelle für die Anzeige der eingeschriebenen Studenten erstellen
-        students_label = tk.Label(students_frame, text="Eingeschriebene Studenten:", font=font.Font(family="Arial", size=14, weight="bold"))
+        students_label = tk.Label(students_frame, text="Eingeschriebene Studenten:", font=font.Font(family="Arial", size=12, weight="bold"))
         students_label.pack(pady=10)
-        self.tree = ttk.Treeview(students_frame, columns=("ID", "Vorname", "Nachname", "E-Mail"), show="headings")
+        self.tree = ttk.Treeview(students_frame, columns=("ID", "Vorname", "Nachname", "E-Mail"), show="headings",height=20)
         self.tree.heading("ID", text="ID")
         self.tree.heading("Vorname", text="Vorname")
         self.tree.heading("Nachname", text="Nachname")
@@ -85,10 +93,10 @@ class CourseManagementFrame(tk.Frame):
         notes_frame = tk.Frame(right_frame)
         notes_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, padx= 10, pady=10)
         # Großes Textfeld für Notizen zum Kurs
-        note_label = tk.Label(notes_frame, text="Notizen", font=font.Font(family="Arial", size=14, weight="bold"))
+        note_label = tk.Label(notes_frame, text="Notizen", font=font.Font(family="Arial", size=12, weight="bold"))
         note_label.pack(pady=10)
 
-        self.note_text  = tk.Text(notes_frame, height=4, width=250)
+        self.note_text  = tk.Text(notes_frame, height=4, width=100)
         self.note_text.pack()
 
 

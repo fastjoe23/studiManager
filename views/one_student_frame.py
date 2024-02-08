@@ -28,6 +28,9 @@ class OneStudentWindow(tk.Toplevel):
 
         self.email_label = tk.Label(personal_frame, text="E-Mail:")
         self.email_entry = tk.Entry(personal_frame, width=30)
+        
+        self.course_label = tk.Label(personal_frame)
+        self.course_name_label = tk.Label(personal_frame)
 
         self.first_name_label.grid(row=0, column=0, pady=5, sticky=tk.E)
         self.first_name_entry.grid(row=0, column=1, pady=5, padx=5)
@@ -35,6 +38,8 @@ class OneStudentWindow(tk.Toplevel):
         self.last_name_entry.grid(row=1, column=1, pady=5, padx=5)
         self.email_label.grid(row=2, column=0, pady=5, sticky=tk.E)
         self.email_entry.grid(row=2, column=1, pady=5, padx=5)
+        self.course_label.grid(row=4, column=0, pady=5, sticky=tk.E)
+        self.course_name_label.grid(row=4, column=1, pady=5, padx=5)
 
         # Gruppe 2: Firmeninformationen
         company_frame = tk.Frame(input_frame)
@@ -81,7 +86,7 @@ class OneStudentWindow(tk.Toplevel):
             self.tree.heading("ID", text="ID", command=lambda: self.sort_column("ID"))
             self.tree.column("ID", width=30)
             self.tree.heading("Typ", text="Typ", command=lambda: self.sort_column("Typ"))
-            self.tree.column("Typ", width=50)
+            self.tree.column("Typ", width=90)
             self.tree.heading("Thema", text="Thema", command=lambda: self.sort_column("Thema"))
             self.tree.heading("Vorname Gutachter", text="Vorname Gutachter", command=lambda: self.sort_column("Vorname Gutachter"))
             self.tree.heading("Nachname Gutachter", text="Nachname Gutachter", command=lambda: self.sort_column("Nachname Gutachter"))
@@ -126,6 +131,16 @@ class OneStudentWindow(tk.Toplevel):
             self.note = parent.controller.read_note_by_type_and_related_id("student", student.student_id)
             if self.note:
                 self.note_text.insert("1.0",self.note.note)
+
+            # eventuell Kursname anzeigen, wenn Student eingeschrieben
+            enrollments = parent.controller.read_all_enrollments_by_student_id(student.student_id)
+            if enrollments:
+                # wir ignorieren mehrere enrollments und zeigen nur das erste an
+                # kursnamen besorgen
+                course = parent.controller.read_course_by_id(enrollments[0].course_id)
+                if course:
+                    self.course_label.config(text="Kurs:")
+                    self.course_name_label.config(text=course.course_name)
 
     def sort_column(self, column):
         # Funktion zum Sortieren der Tabelle nach der ausgewählten Spalte
