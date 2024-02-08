@@ -96,7 +96,8 @@ class OneAssignmentWindow(tk.Toplevel):
             self.student_last_name_entry.insert(0, student.last_name)
             self.lecturer_first_name_entry.insert(0, lecturer.first_name)
             self.lecturer_last_name_entry.insert(0, lecturer.last_name)
-            self.grade_entry.insert(0, assignment.grade)
+            if assignment.grade:
+                self.grade_entry.insert(0, assignment.grade)
             self.date_entry.insert(0, assignment.date)
             self.time_entry.insert(0, assignment.time)
         else:

@@ -37,7 +37,7 @@ class Person:
     
     def write_person_to_dB(self, last_name, first_name, email):
         self.cursor.execute('''
-            INSERT INTO persons (lastName, firstName, email)
+            INSERT INTO persons (last_name, first_name, email)
             VALUES (?, ?, ?)
         ''', (last_name, first_name, email))
         self.conn.commit()
@@ -78,7 +78,7 @@ class Person:
             return None
 
     def read_person_by_person_id_from_db(self,person_id):
-        self.cursor.execute('SELECT * FROM persons WHERE personId = ?',(person_id,))
+        self.cursor.execute('SELECT * FROM persons WHERE person_id = ?',(person_id,))
         return self.cursor.fetchone()
     
     def read_person_by_name(self,last_name, first_name):
@@ -96,21 +96,21 @@ class Person:
             return None
 
     def read_person_by_name_from_db(self, last_name, first_name):
-        self.cursor.execute('SELECT * FROM persons WHERE firstName = ? AND lastName = ?',(first_name, last_name, ))
+        self.cursor.execute('SELECT * FROM persons WHERE first_name = ? AND last_name = ?',(first_name, last_name, ))
         return self.cursor.fetchone()
 
     def update_person(self, person_id, new_last_name, new_first_name, new_email):
         self.cursor.execute('''
             UPDATE persons
-            SET lastName = ?,
-                firstName = ?,
+            SET last_name = ?,
+                first_name = ?,
                 email = ?
-            WHERE personId = ?
+            WHERE person_id = ?
         ''', (new_last_name, new_first_name, new_email, person_id))
         self.conn.commit()
 
     def delete_person(self, person_id):
-        self.cursor.execute('DELETE FROM persons WHERE personId = ?', (person_id,))
+        self.cursor.execute('DELETE FROM persons WHERE person_id = ?', (person_id,))
         self.conn.commit()
 
     def connect_to_database(self):
@@ -151,7 +151,7 @@ class Student(Person):
     def write_student_to_db(self,person_id, company, mat_number, enrolled):
         # Füge den Studenten hinzu
         self.cursor.execute('''
-            INSERT INTO students (personId, company, matNumber, enrolled)
+            INSERT INTO students (person_id, company, mat_number, enrolled)
             VALUES (?, ?, ?, ?)
         ''', (person_id, company, mat_number, enrolled))
         self.conn.commit()
@@ -180,7 +180,7 @@ class Student(Person):
 
 
     def read_all_students_from_db(self):
-        self.cursor.execute('SELECT persons.personId, persons.firstName, persons.lastName, persons.eMail, students.studentId, students.company, students.matNumber, students.enrolled, students.creationDate FROM persons JOIN students ON persons.personId = students.personId')
+        self.cursor.execute('SELECT persons.person_id, persons.first_name, persons.last_name, persons.eMail, students.student_id, students.company, students.mat_number, students.enrolled, students.creation_date FROM persons JOIN students ON persons.person_id = students.person_id')
         return self.cursor.fetchall()
     
     def read_all_students_by_course_id(self, course_id):
@@ -206,18 +206,18 @@ class Student(Person):
     def read_all_students_by_course_id_from_db(self, course_id):
         self.cursor.execute('''
             SELECT
-                persons.personId,
-                persons.firstName,
-                persons.LastName,
+                persons.person_id,
+                persons.first_name,
+                persons.last_name,
                 persons.eMail,
-                students.studentId,
+                students.student_id,
                 students.company,
-                students.matNumber,
+                students.mat_number,
                 students.enrolled,
-                students.creationDate
+                students.creation_date
             FROM persons
-            JOIN students ON persons.personId = students.personId
-            WHERE students.studentId IN (SELECT enrollments.studentId FROM enrollments WHERE enrollments.courseId = ?)
+            JOIN students ON persons.person_id = students.person_id
+            WHERE students.student_id IN (SELECT enrollments.student_id FROM enrollments WHERE enrollments.course_id = ?)
             ''',(course_id,))
         return self.cursor.fetchall()
 
@@ -245,7 +245,7 @@ class Student(Person):
             return None
 
     def read_student_from_db(self, student_id):
-        self.cursor.execute('SELECT * FROM students WHERE studentId = ?',(student_id,))
+        self.cursor.execute('SELECT * FROM students WHERE student_id = ?',(student_id,))
         return self.cursor.fetchone()
 
     def read_student_by_person_id(self, person_id):
@@ -272,7 +272,7 @@ class Student(Person):
             return None
 
     def read_student_from_db_by_person_id(self, person_id):
-        self.cursor.execute('SELECT * FROM students WHERE personId = ?',(person_id,))
+        self.cursor.execute('SELECT * FROM students WHERE person_id = ?',(person_id,))
         return self.cursor.fetchone()
     
     def read_student_by_name(self, last_name, first_name):
@@ -292,15 +292,15 @@ class Student(Person):
         self.cursor.execute('''
             UPDATE students
             SET company = ?,
-                matNumber = ?,
+                mat_number = ?,
                 enrolled = ?
-            WHERE studentId = ?
+            WHERE student_id = ?
         ''', (new_company, new_mat_number, new_enrolled, student_id))
         self.conn.commit()
 
     def delete_student(self, student_id):
         # Lösche den Studenten (Person wird automatisch gelöscht durch Fremdschlüsselbeziehung)
-        self.cursor.execute('DELETE FROM students WHERE studentId = ?', (student_id,))
+        self.cursor.execute('DELETE FROM students WHERE student_id = ?', (student_id,))
         self.conn.commit()
 
     def __del__(self):
@@ -331,7 +331,7 @@ class Lecturer(Person):
     def write_lecturer_to_db(self, person_id, company):
         # Füge den Dozenten hinzu
         self.cursor.execute('''
-            INSERT INTO lecturers (personId, company)
+            INSERT INTO lecturers (person_id, company)
             VALUES (?, ?)
         ''', (person_id, company))
         self.conn.commit()
@@ -357,7 +357,7 @@ class Lecturer(Person):
         return lecturers_list
 
     def read_all_lecturers_from_db(self):
-        self.cursor.execute('SELECT persons.personId, persons.firstName, persons.LastName, persons.eMail, lecturers.lecturerId, lecturers.company, lecturers.creationDate FROM persons JOIN lecturers ON persons.personId = lecturers.personId')
+        self.cursor.execute('SELECT persons.person_id, persons.first_name, persons.last_name, persons.eMail, lecturers.lecturer_id, lecturers.company, lecturers.creation_date FROM persons JOIN lecturers ON persons.person_id = lecturers.person_id')
         return self.cursor.fetchall()
 
     def read_lecturer_by_id(self, lecturer_id):
@@ -382,7 +382,7 @@ class Lecturer(Person):
             return None
 
     def read_lecturer_from_db(self, lecturer_id):
-        self.cursor.execute('SELECT * FROM lecturers WHERE lecturerId = ?', (lecturer_id,))
+        self.cursor.execute('SELECT * FROM lecturers WHERE lecturer_id = ?', (lecturer_id,))
         return self.cursor.fetchone()
     
     def read_lecturer_by_person_id(self, person_id):
@@ -407,7 +407,7 @@ class Lecturer(Person):
             return None
     
     def read_lecturer_from_db_by_person_id(self, person_id):
-        self.cursor.execute('SELECT * FROM lecturers WHERE personId = ?', (person_id,))
+        self.cursor.execute('SELECT * FROM lecturers WHERE person_id = ?', (person_id,))
         return self.cursor.fetchone()
     
     def read_lecturer_by_name(self, last_name, first_name):
@@ -427,13 +427,13 @@ class Lecturer(Person):
         self.cursor.execute('''
             UPDATE lecturers
             SET company = ?
-            WHERE lecturerId = ?
+            WHERE lecturer_id = ?
         ''', (new_company, lecturer_id))
         self.conn.commit()
 
     def delete_lecturer(self, lecturer_id):
         # Lösche den Dozenten (Person wird automatisch gelöscht durch Fremdschlüsselbeziehung)
-        self.cursor.execute('DELETE FROM lecturers WHERE lecturerId = ?', (lecturer_id,))
+        self.cursor.execute('DELETE FROM lecturers WHERE lecturer_id = ?', (lecturer_id,))
         self.conn.commit()
 
     def __del__(self):
@@ -460,7 +460,7 @@ class Course:
     def write_course_to_dB(self, course_name, start_date):
         # Füge den Kurs zur Datenbank hinzu
         self.cursor.execute('''
-            INSERT INTO courses (courseName, startDate)
+            INSERT INTO courses (course_name, start_date)
             VALUES (?, ?)
         ''', (course_name, start_date))
         self.conn.commit()
@@ -483,7 +483,7 @@ class Course:
             return None
 
     def read_course_from_db(self, course_id):
-        self.cursor.execute('SELECT * FROM courses WHERE courseId = ?', (course_id,))
+        self.cursor.execute('SELECT * FROM courses WHERE course_id = ?', (course_id,))
         return self.cursor.fetchone()
     
     def read_all_courses(self):
@@ -509,20 +509,20 @@ class Course:
         # Aktualisiere die Informationen des Kurses
         self.cursor.execute('''
             UPDATE courses
-            SET courseName = ?,
-                startDate = ?
-            WHERE courseId = ?
+            SET course_name = ?,
+                start_date = ?
+            WHERE course_id = ?
         ''', (course_name, start_date, course_id))
         self.conn.commit()
 
     def delete_course(self, course_id):
         # Lösche den Kurs
-        self.cursor.execute('DELETE FROM courses WHERE courseId = ?', (course_id,))
+        self.cursor.execute('DELETE FROM courses WHERE course_id = ?', (course_id,))
         self.conn.commit()
 
     def read_all_enrolled_students(self):
         # alle enrollenments zum Kurs holen
-        enrollments_db_dump = self.cursor.execute('SELECT * FROM enrollments WHERE courseId = ?', (self.course_id,))
+        enrollments_db_dump = self.cursor.execute('SELECT * FROM enrollments WHERE course_id = ?', (self.course_id,))
 
         enrollments_list = []
         for row in enrollments_db_dump:
@@ -562,7 +562,7 @@ class Enrollments:
 
     def add_student_to_course(self, student_id, course_id):
         self.cursor.execute('''
-            INSERT INTO enrollments (studentId, courseId)
+            INSERT INTO enrollments (student_id, course_id)
             VALUES (?, ?)
         ''', (student_id, course_id))
         self.conn.commit()
@@ -582,7 +582,7 @@ class Enrollments:
             return None
 
     def read_enrollment_from_db(self, enrollment_id):
-        self.cursor.execute('SELECT * FROM enrollments WHERE enrollmentId = ?', (enrollment_id,))
+        self.cursor.execute('SELECT * FROM enrollments WHERE enrollment_id = ?', (enrollment_id,))
         return self.cursor.fetchone()
 
     def read_all_enrollments(self):
@@ -618,22 +618,22 @@ class Enrollments:
         return enrollments_list
 
     def read_all_enrollments_by_student_id_from_db(self, student_id):
-        self.cursor.execute('SELECT * FROM enrollments WHERE studentId = ?', (student_id, ))
+        self.cursor.execute('SELECT * FROM enrollments WHERE student_id = ?', (student_id, ))
         return self.cursor.fetchall()
     
     def update_enrollment(self, enrollment_id, student_id, course_id):
         # Aktualisiere die Informationen des Kurses
         self.cursor.execute('''
             UPDATE enrollments
-            SET studentId = ?,
-                courseId = ?
-            WHERE enrollmentId = ?
+            SET student_id = ?,
+                course_id = ?
+            WHERE enrollment_id = ?
         ''', (student_id, course_id, enrollment_id))
         self.conn.commit()
 
     def delete_enrollment(self, enrollment_id):
         # Lösche den Kurs
-        self.cursor.execute('DELETE FROM enrollments WHERE enrollmentId = ?', (enrollment_id,))
+        self.cursor.execute('DELETE FROM enrollments WHERE enrollment_id = ?', (enrollment_id,))
         self.conn.commit()  
 
     def connect_to_database(self):
@@ -676,7 +676,7 @@ class Assignments:
         real_grade = str(grade).replace(",",".")
         # Füge das Assignment zur Datenbank hinzu
         self.cursor.execute('''
-            INSERT INTO assignments (studentId, lecturerId, type, topic, grade, date, time)
+            INSERT INTO assignments (student_id, lecturer_id, type, topic, grade, date, time)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', (student_id, lecturer_id, type, topic, real_grade, date, time))
         self.conn.commit()
@@ -685,17 +685,17 @@ class Assignments:
 
     def add_student_to_assignment(self, student_id, assignment_id):
         self.cursor.execute('''
-            INSERT INTO assignments (studentId)
+            INSERT INTO assignments (student_id)
             VALUES (?)
-            WHERE assignmentId = ?
+            WHERE assignment_id = ?
         ''', (student_id, assignment_id))
         self.conn.commit()
 
     def add_lecturer_to_assignment(self, lecturer_id, assignment_id):
         self.cursor.execute('''
-            INSERT INTO assignments (lecturerId)
+            INSERT INTO assignments (lecturer_id)
             VALUES (?)
-            WHERE assignmentId = ?
+            WHERE assignment_id = ?
         ''', (lecturer_id, assignment_id))
         self.conn.commit()
 
@@ -709,7 +709,7 @@ class Assignments:
             return None
 
     def read_assignment_from_db_by_id(self, assignment_id):
-        self.cursor.execute('SELECT * FROM assignments WHERE assignmentId = ?', (assignment_id,))
+        self.cursor.execute('SELECT * FROM assignments WHERE assignment_id = ?', (assignment_id,))
         return self.cursor.fetchone()
 
     def read_assignment_by_student_id_and_type(self, student_id, assignment_type):
@@ -722,7 +722,7 @@ class Assignments:
             return None
 
     def read_assignment_from_db_by_student_id_and_type(self, student_id, assignment_type):
-        self.cursor.execute('SELECT * FROM assignments WHERE studentId = ? AND type = ?', (student_id, assignment_type,))
+        self.cursor.execute('SELECT * FROM assignments WHERE student_id = ? AND type = ?', (student_id, assignment_type,))
         return self.cursor.fetchone()
 
     def read_all_assignments(self):
@@ -768,7 +768,7 @@ class Assignments:
         return new_assignment
 
     def read_all_assignments_by_student_id_from_db(self, student_id):
-        self.cursor.execute('SELECT * FROM assignments WHERE studentId = ?', (student_id, ))
+        self.cursor.execute('SELECT * FROM assignments WHERE student_id = ?', (student_id, ))
         return self.cursor.fetchall()
 
     def update_assignment(self, assignment_id, student_id, lecturer_id, type, topic, grade, date, time):
@@ -776,20 +776,20 @@ class Assignments:
         real_grade = str(grade).replace(",",".")
         self.cursor.execute('''
             UPDATE assignments
-            SET studentId = ?,
-                lecturerId = ?,
+            SET student_id = ?,
+                lecturer_id = ?,
                 type = ?,
                 topic = ?,
                 grade = ?,
                 date = ?,
                 time = ?
-            WHERE assignmentId = ?
+            WHERE assignment_id = ?
         ''', (student_id, lecturer_id, type, topic, real_grade, date, time, assignment_id))
         self.conn.commit()
 
     def delete_assignment(self, assignment_id):
         # Lösche den Kurs
-        self.cursor.execute('DELETE FROM assignments WHERE assignmentId = ?', (assignment_id,))
+        self.cursor.execute('DELETE FROM assignments WHERE assignment_id = ?', (assignment_id,))
         self.conn.commit()  
 
     def connect_to_database(self):
