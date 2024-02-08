@@ -52,14 +52,18 @@ class CourseManagementFrame(tk.Frame):
         generate_assignment_list_button = tk.Button(actions_frame, text="Blanko Arbeiten Liste generieren", command=lambda: self.generate_assignment_list(course_id), width=button_width)
         generate_assignment_list_button.pack(pady=5)
 
-        close_course_button = tk.Button(actions_frame, text="Kurs verlassen", command=self.close_course_management, width=button_width)
+        close_course_button = tk.Button(actions_frame, text="Kurs verlassen", command=lambda: self.close_course_management(course_id), width=button_width)
         close_course_button.pack(pady=25)        
 
-        # Rechter Teil für Liste der eingeschriebenen Studenten
-        students_frame = tk.Frame(self)
-        students_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=10, pady=10)
+        # Rechter Teil für Liste der eingeschriebenen Studenten und Notiz
+        right_frame = tk.Frame(self)
+        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=10, pady=10)
+        students_frame = tk.Frame(right_frame)
+        students_frame.pack()
 
         # Tabelle für die Anzeige der eingeschriebenen Studenten erstellen
+        students_label = tk.Label(students_frame, text="Eingeschriebene Studenten:", font=font.Font(family="Arial", size=14, weight="bold"))
+        students_label.pack(pady=10)
         self.tree = ttk.Treeview(students_frame, columns=("ID", "Vorname", "Nachname", "E-Mail"), show="headings")
         self.tree.heading("ID", text="ID")
         self.tree.heading("Vorname", text="Vorname")
@@ -77,8 +81,25 @@ class CourseManagementFrame(tk.Frame):
         # Doppelklick-Ereignis auf den Treeview binden
         self.tree.bind("<Double-1>", lambda event, course_id=course_id: self.on_double_click(event, course_id))
 
+        # unterer Teil für Notizen
+        notes_frame = tk.Frame(right_frame)
+        notes_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, padx= 10, pady=10)
+        # Großes Textfeld für Notizen zum Kurs
+        note_label = tk.Label(notes_frame, text="Notizen", font=font.Font(family="Arial", size=14, weight="bold"))
+        note_label.pack(pady=10)
+
+        self.note_text  = tk.Text(notes_frame, height=4, width=250)
+        self.note_text.pack()
+
+
         # Lade die Liste der eingeschriebenen Studenten
         self.load_enrolled_students(course_id)
+
+        # Lade eventuell gespeicherte Notiz
+        self.note = self.load_note(course_id)
+        # textfeld füllen
+        if self.note:
+            self.note_text.insert("1.0", self.note.note)
 
     def on_double_click(self, event, course_id):
         # Funktion, die bei Doppelklick auf eine Zeile aufgerufen wird
@@ -148,8 +169,19 @@ class CourseManagementFrame(tk.Frame):
         add_generate_window.grab_set()  # Sperrt das Hauptfenster, während das Unterfenster geöffnet ist
         add_generate_window.wait_window()
 
-    def close_course_management(self):
+    def close_course_management(self, course_id):
+        # vorm Schließen noch die Notiz speichern
+        self.save_note(course_id)
+
         self.master.show_main_frame()
+
+    def save_note(self, course_id):
+        actual_note_text = self.note_text.get("1.0", "end-1c")
+        if self.note:
+            self.master.controller.update_note_by_id(self.note.note_id, actual_note_text)
+        else: # wir müssen neue Notiz anlegen
+            self.master.controller.create_note("course", course_id, actual_note_text)
+
 
     def load_enrolled_students(self,course_id):
         # Lade die Liste der eingeschriebenen Studenten für den aktuellen Kurs
@@ -161,6 +193,12 @@ class CourseManagementFrame(tk.Frame):
         # Baue die Tabelle neu auf
         for student in enrolled_students:
             self.tree.insert("", tk.END, values=(student.student_id, student.first_name, student.last_name, student.email))
+    
+    def load_note(self, course_id):
+        note = self.master.controller.read_note_by_type_and_related_id("course",course_id)
+        return note
+
+
 
     def update_selected_student(self, course_id):
         # Erhalte die ausgewählte Zeile in der Tabelle

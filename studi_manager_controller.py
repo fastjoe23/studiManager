@@ -206,6 +206,22 @@ class StudentManagerController:
             new_elements = [element]
             self.create_last_used_item(type, new_elements)
 
+# Methoden für Notizen
+    def create_note(self, note_type, related_id, note):
+        return self.model.note.create_note(note_type, related_id, note)
+
+    def read_note_by_type_and_related_id(self, note_type, related_id):
+        return self.model.note.read_note_by_type_and_related_id(note_type, related_id)
+
+    def update_note_by_id(self, note_id, new_note):
+        return self.model.note.update_note_by_id(note_id, new_note)
+
+    def delete_note_by_id(self, note_id):
+        return self.model.note.delete_note_by_id(note_id)
+
+    def delete_all_notes(self):
+        return self.model.note.delete_all_notes()            
+
 # Import Methoden
     def save_list_to_file(self,parsed_data, save_path, type, course_name):
         file_name = course_name + type + ".csv"

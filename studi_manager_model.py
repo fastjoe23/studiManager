@@ -10,6 +10,7 @@ class Model:
         self.enrollments = Enrollments()
         self.assignments = Assignments()
         self.lastUsedItems = LastUsedItems()
+        self.note = Notes()
 
 
 
@@ -852,6 +853,69 @@ class LastUsedItems():
         self.cursor.execute('DELETE FROM lastUsedItems')
         self.conn.commit()
 
+
+    def connect_to_database(self):
+        configs = Config()
+        database_name = configs.data_base_name
+        self.conn = sqlite3.connect(database_name)
+        self.cursor = self.conn.cursor()
+
+    def __del__(self):
+        self.conn.close()
+
+class Notes:
+    def __init__(self):
+        self.note_id = None
+        self.note_type = None
+        self.related_id = None
+        self.note = None
+        self.conn = None
+        self.cursor = None
+        self.connect_to_database()
+
+    def create_note(self, note_type, related_id, note):
+        self.cursor.execute('''
+            INSERT INTO notes (note_type, related_id, note)
+            VALUES (?, ?, ?)
+        ''', (note_type, related_id, note))
+        self.conn.commit()
+
+    def read_note_by_type_and_related_id(self, note_type, related_id):
+        self.cursor.execute('''
+            SELECT * FROM notes
+            WHERE note_type = ? AND related_id = ?
+        ''', (note_type, related_id))
+        db_dump = self.cursor.fetchone()
+
+        if db_dump:
+            note = Notes()
+            note.note_id = db_dump[0]
+            note.note_type = db_dump[1]
+            note.related_id = db_dump[2]
+            note.note = db_dump[3]
+            
+            return note
+        else:
+            return None
+
+    def update_note_by_id(self, note_id, new_note):
+        self.cursor.execute('''
+            UPDATE notes
+            SET note = ?
+            WHERE note_id = ?
+        ''', (new_note, note_id))
+        self.conn.commit()
+
+    def delete_note_by_id(self, note_id):
+        self.cursor.execute('''
+            DELETE FROM notes
+            WHERE note_id = ?
+        ''', (note_id,))
+        self.conn.commit()
+
+    def delete_all_notes(self):
+        self.cursor.execute('DELETE FROM notes')
+        self.conn.commit()
 
     def connect_to_database(self):
         configs = Config()

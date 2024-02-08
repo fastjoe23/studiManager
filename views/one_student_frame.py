@@ -57,6 +57,14 @@ class OneStudentWindow(tk.Toplevel):
         self.enrolled_label.grid(row=2, column=0, pady=5, sticky=tk.E)
         self.enrolled_checkbox.grid(row=2, column=1, pady=5, padx=5)
 
+        # Gruppe 3: Notizfeld
+        notes_frame = tk.Frame(input_frame)
+        notes_frame.pack(side=tk.LEFT, padx=10)
+        note_label = tk.Label(notes_frame, text="Notizen")
+        note_label.pack(padx=10, pady=10)
+        self.note_text  = tk.Text(notes_frame, height=6, width=25)
+        self.note_text.pack()
+
         # wenn Student vorhanden, dann zeige Assignments-Tabelle an
         
         if student:
@@ -114,6 +122,10 @@ class OneStudentWindow(tk.Toplevel):
             self.company_entry.insert(0, student.company)
             self.mat_number_entry.insert(0, student.mat_number)
             self.enrolled_var.set(bool(student.enrolled))
+            # eventuell notiz holen
+            self.note = parent.controller.read_note_by_type_and_related_id("student", student.student_id)
+            if self.note:
+                self.note_text.insert("1.0",self.note.note)
 
     def sort_column(self, column):
         # Funktion zum Sortieren der Tabelle nach der ausgewählten Spalte
@@ -135,14 +147,23 @@ class OneStudentWindow(tk.Toplevel):
             company = self.company_entry.get()
             mat_number = self.mat_number_entry.get()
             enrolled = self.enrolled_var.get()
+            actual_note_text = self.note_text.get("1.0", "end-1c")
 
             if student:
                 # Bearbeite den vorhandenen Student, wenn Student_data vorhanden ist
                 parent.controller.update_student(student.student_id, student.person_id, last_name, first_name, email,
                                                 company, mat_number, enrolled)
+                # update der Notiztexte
+                if self.note:
+                    parent.controller.update_note_by_id(self.note.note_id, actual_note_text)
+                else:
+                    parent.controller.create_note("student", student.student_id, actual_note_text)
             else:
                 # Füge hier die Logik zum Hinzufügen der Student hinzu
-                parent.controller.add_student(last_name, first_name, email, company, mat_number, enrolled)
+                new_student = parent.controller.add_student(last_name, first_name, email, company, mat_number, enrolled)
+                # füge ggf. gleich Notiz hinzu
+                if actual_note_text:
+                    parent.controller.create_note("student", new_student.student_id, actual_note_text)
 
             # Schließe das Fenster nach dem Hinzufügen oder Bearbeiten
             self.destroy()
