@@ -10,7 +10,7 @@ class OneStudentWindow(tk.Toplevel):
 
         if student:
             # last_used_items aktualisieren
-            parent.controller.add_element_to_last_used_items("student", student.student_id)
+            parent.controller.add_element_to_last_used_items("student", str(student.student_id))
 
         # Frame für Eingabefelder
         input_frame = tk.Frame(self)
