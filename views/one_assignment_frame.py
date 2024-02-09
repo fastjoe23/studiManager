@@ -42,12 +42,9 @@ class OneAssignmentWindow(tk.Toplevel):
         lecturerlabel_frame.pack(padx=10, pady=10)
 
         # Anzeige der lecturerdaten im Label_frame
-        tk.Label(lecturerlabel_frame, text="Vorname:").grid(row=0, column=0)
-        tk.Label(lecturerlabel_frame, text="Nachname").grid(row=0, column=1)
-        self.lecturer_first_name_entry = tk.Entry(lecturerlabel_frame, width=30)
-        self.lecturer_first_name_entry.grid(row=1, column= 0)
-        self.lecturer_last_name_entry = tk.Entry(lecturerlabel_frame, width=30)
-        self.lecturer_last_name_entry.grid(row=1, column= 1)
+        tk.Label(lecturerlabel_frame, text="Gutachter:").grid(row=0, column=0)
+        self.lecturer_combobox = ttk.Combobox(lecturerlabel_frame, width=50)
+        self.lecturer_combobox.grid(row=0, column=1)
 
         self.misc_frame = tk.Frame(self)
         self.misc_frame.pack(pady=10)
@@ -81,21 +78,26 @@ class OneAssignmentWindow(tk.Toplevel):
         self.bind("<Return>", lambda event: self.add_or_edit_assignment(parent, assignment))
         self.focus_set()
 
+        # fülle die Combobox mit allen möglichen Gutachtern
+        all_lecturers = parent.controller.read_all_lecturers()
+        lecturer_names = [", ".join([lecturer.last_name, lecturer.first_name]) for lecturer in all_lecturers]
+        self.lecturer_combobox['values'] = lecturer_names
+
+
         # Wenn Assignment vorhanden ist, fülle die Eingabefelder vor
         if assignment:
             if not student:
                 # Studenten ermitteln
                 student = parent.controller.read_student_by_id(assignment.student_id)
-            
-            # Gutachter ermitteln                          
+            # Gutachter ermitteln
             lecturer = parent.controller.read_lecturer_by_id(assignment.lecturer_id)
 
             self.type_dropdown.set(assignment.type)
             self.topic_entry.insert(0, assignment.topic)
             self.student_first_name_entry.insert(0, student.first_name)
             self.student_last_name_entry.insert(0, student.last_name)
-            self.lecturer_first_name_entry.insert(0, lecturer.first_name)
-            self.lecturer_last_name_entry.insert(0, lecturer.last_name)
+            lecturer_full_name = lecturer.last_name + ", " + lecturer.first_name
+            self.lecturer_combobox.set(lecturer_full_name)
             if assignment.grade:
                 self.grade_entry.insert(0, assignment.grade)
             self.date_entry.insert(0, assignment.date)
@@ -107,6 +109,9 @@ class OneAssignmentWindow(tk.Toplevel):
                 self.student_last_name_entry.insert(0, student.last_name)
 
 
+
+
+
     def add_or_edit_assignment(self, parent, assignment):
         try:
             # Hole die Daten aus den Eingabefeldern
@@ -115,20 +120,21 @@ class OneAssignmentWindow(tk.Toplevel):
             assignment_grade = float(self.grade_entry.get().replace(",",".")) if self.grade_entry.get() else None
             assignment_student_first_name = self.student_first_name_entry.get()
             assignment_student_last_name = self.student_last_name_entry.get()
-            assignment_lecturer_first_name = self.lecturer_first_name_entry.get()
-            assignment_lecturer_last_name = self.lecturer_last_name_entry.get()
+            assignment_lecturer_full_name = self.lecturer_combobox.get()
             assignment_date = self.date_entry.get()
             assignment_time = self.time_entry.get()
 
             # Ermittele Student_id und Lecturer_id
             student = parent.controller.read_student_by_name(assignment_student_last_name, assignment_student_first_name)
             if not student:
-                messagebox.showerror("Student nicht gefunden", f"Student {assignment_student_first_name} {assignment_lecturer_last_name} ist nicht in der Datenbank.")
+                messagebox.showerror("Student nicht gefunden", f"Student {assignment_student_first_name} {assignment_student_last_name} ist nicht in der Datenbank.")
                 return
-            
-            lecturer = parent.controller.read_lecturer_by_name(assignment_lecturer_last_name, assignment_lecturer_first_name)
+
+            # Trenne den vollen Namen des Gutachters in Vor- und Nachnamen
+            lecturer_last_name, lecturer_first_name = assignment_lecturer_full_name.split(", ", 1)
+            lecturer = parent.controller.read_lecturer_by_name(lecturer_last_name, lecturer_first_name)
             if not lecturer:
-                messagebox.showerror("Gutachter nicht gefunden", f"Gutachter {assignment_lecturer_first_name} {assignment_lecturer_last_name} ist nicht in der Datenbank.")
+                messagebox.showerror("Gutachter nicht gefunden", f"Gutachter {assignment_lecturer_full_name} ist nicht in der Datenbank.")
                 return
 
 
@@ -162,5 +168,4 @@ class OneAssignmentWindow(tk.Toplevel):
             # Wenn ein Fehler auftritt, zeige eine Meldung an
             error_label = tk.Label(self, text=str(e), fg="red")
             error_label.pack(pady=5)
-
             

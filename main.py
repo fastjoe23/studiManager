@@ -1,7 +1,8 @@
 import tkinter as tk
 
-from studi_manager_model import Assignments, Model, Person, Student, Lecturer, Course, Enrollments
+
 from studi_manager_controller import StudentManagerController
+from studi_manager_model import Model
 from views.welcome_frame import WelcomeFrame
 from views.persons_frame import PersonsFrame
 from views.one_person_frame import OnePersonWindow
@@ -16,7 +17,7 @@ from views.course_management_frame import CourseManagementFrame
 from views.assignments_frame import AssignmentsFrame
 from views.email_settings_frame import EmailSettingsWindow
 
-class Main_application(tk.Tk):
+class MainApplication(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         self.title("DHBW Studenten Verwaltung")
@@ -95,7 +96,7 @@ class Main_application(tk.Tk):
         add_person_window.wait_window()
 
     def show_all_students(self):
-        # Ersetze den aktuellen Frame durch den Studenten-Frame 
+        # Ersetze den aktuellen Frame durch den Studenten-Frame
         self.main_frame.destroy()
         # Hier kommt der entsprechende Frame für die Anzeige der Studenten
         self.main_frame = StudentsFrame(self)
@@ -106,10 +107,9 @@ class Main_application(tk.Tk):
         add_student_window = OneStudentWindow(self)
         add_student_window.grab_set()  # Sperrt das Hauptfenster, während das Unterfenster geöffnet ist
         add_student_window.wait_window()
-    
-    def show_all_lecturers(self):
 
-        # Ersetze den aktuellen Frame durch den Dozenten-Frame 
+    def show_all_lecturers(self):
+        # Ersetze den aktuellen Frame durch den Dozenten-Frame
         self.main_frame.destroy()
         # Hier kommt der entsprechende Frame für die Anzeige der Dozenten
         self.main_frame = LecturersFrame(self)
@@ -144,11 +144,11 @@ class Main_application(tk.Tk):
               # Zum Beispiel, einen neuen Frame erstellen und den alten ersetzen
         self.main_frame.destroy()  # Zerstöre das alte Frame
         self.main_frame = CourseManagementFrame(self, course_id)  # Setze das neue Frame
-        self.main_frame.pack(fill=tk.BOTH, expand=True)    
+        self.main_frame.pack(fill=tk.BOTH, expand=True)
 
 
 if __name__ == "__main__":
-    app = Main_application()
+    app = MainApplication()
 
     photo = tk.PhotoImage(file = 'DHBW_Icon.png')
     app.wm_iconphoto(True, photo)
