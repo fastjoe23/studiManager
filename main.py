@@ -84,6 +84,12 @@ class MainApplication(tk.Tk):
         menubar.add_cascade(label="Sonstiges", menu=settings_menu)
         settings_menu.add_command(label="Email Einstellungen", command=self.show_settings)
 
+    def show_main_frame(self):
+        """ Zeigt den Start-Bildschirm an"""
+        self.main_frame.destroy()
+        self.main_frame = WelcomeFrame(self)
+        self.main_frame.pack(fill=tk.BOTH, expand=True)
+
     def show_all_courses(self):
         """Zeigt alle Kurse an."""
         self.main_frame.destroy()
