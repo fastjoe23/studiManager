@@ -44,7 +44,7 @@ class CourseManagementFrame(tk.Frame):
         label_helpers = tk.Label(actions_frame,text="Hilfsfunktionen",fg="grey")
         label_helpers.pack(pady=10)
 
-        import_list_button = tk.Button(actions_frame, text="Kurs aus Liste einlesen", command=lambda: self.import_course_from_list(course_id), width=button_width)
+        import_list_button = tk.Button(actions_frame, text="Kurs aus Liste einlesen", command=lambda: self.import_course_from_excel_list(course_id), width=button_width)
         import_list_button.pack(pady=5)
 
         import_assignment_list_button = tk.Button(actions_frame, text="Arbeiten aus Liste einlesen", command= self.import_assignments_from_list, width=button_width)
@@ -134,7 +134,7 @@ class CourseManagementFrame(tk.Frame):
         add_create_pdf_window.grab_set()  # Sperrt das Hauptfenster, während das Unterfenster geöffnet ist
         add_create_pdf_window.wait_window()
 
-    def import_course_from_list(self, course_id):
+    def import_course_from_csv_list(self, course_id):
         # Öffne einen Dateidialog, um die CSV-Datei auszuwählen
         csv_path = filedialog.askopenfilename(defaultextension=".csv",filetypes=[("CSV Dateien", "*.csv")])
 
@@ -149,6 +149,21 @@ class CourseManagementFrame(tk.Frame):
 
         self.load_enrolled_students(course_id)
 
+    def import_course_from_excel_list(self, course_id):
+        # Öffne einen Dateidialog, um die Excel-Datei auszuwählen
+        excel_path = filedialog.askopenfilename(defaultextension=".xlxs",filetypes=[("Excel Dateien", "*.xlsx")])
+
+        # Überprüfe, ob eine Datei ausgewählt wurde
+        if excel_path:
+            try:
+                # Rufe die Methode zum Importieren von Studenten in den Kurs auf
+                self.master.controller.import_students_from_excel_into_course(excel_path, course_id)
+            except Exception as e:
+                # Zeige eine Messagebox mit dem Inhalt der Exception an
+                messagebox.showerror("Fehler beim Importieren", str(e))
+
+        self.load_enrolled_students(course_id)
+
     def generate_course_list(self, course_id):
         # Öffne das Fenster um eine Liste aus Plain-Text zu erzeugen
         add_generate_window = GenerateCourseListWindow(self, course_id)
@@ -157,13 +172,13 @@ class CourseManagementFrame(tk.Frame):
 
     def import_assignments_from_list(self):
         # Öffne einen Dateidialog, um die CSV-Datei auszuwählen
-        csv_path = filedialog.askopenfilename(defaultextension=".csv",filetypes=[("CSV Dateien", "*.csv")])
+        excel_path = filedialog.askopenfilename(defaultextension=".xlsx",filetypes=[("Excel Dateien", "*.xlsx")])
 
         # Überprüfe, ob eine Datei ausgewählt wurde
-        if csv_path:
+        if excel_path:
             try:
                 # Rufe die Methode zum Importieren von Studenten in den Kurs auf
-                imported_assignments = self.master.controller.import_assignments_from_csv_into_course(csv_path)
+                imported_assignments = self.master.controller.import_assignments_from_excel_into_course(excel_path)
                 messagebox.showinfo("Import", f"Es wurden {len(imported_assignments)} Arbeiten erfolgreich importiert.")
 
             except Exception as e:

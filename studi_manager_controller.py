@@ -1,8 +1,10 @@
 import csv
+
 from presentation_evaluation_pdf import PresentationEvaluationPDF
 from studi_manager_model import LastUsedItems, Person
 from dhbw_mail import DHBWMail 
 import re 
+from openpyxl import Workbook, load_workbook
 
 #Hilfsklassen
 class StudentNotFoundException(Exception):
@@ -235,8 +237,17 @@ class StudentManagerController:
                 file.write(parsed_data)
         except Exception as e:
             raise e
+    
+    def save_excel_to_file(self, workbook, save_path, assignment_type, course_name):
+        file_name = course_name + assignment_type + ".xlsx"
+        # Speichern des geparsten Ergebnisses in dem ausgewählten Ordner
+        try:
+            save_file_path = save_path + "/" + file_name
+            workbook.save(save_file_path)
+        except Exception as e:
+            raise e
 
-    def parse_function(self, text_content):
+    def parse_to_csv(self, text_content):
         # Hier die eigentliche Parsing-Logik implementieren
         # Verwendet Regular Expressions, um Informationen aus den Zeilen zu extrahieren
         pattern = r'(\w+)\s+\(([^,]+),\s*([^)]+)\)'
@@ -249,6 +260,35 @@ class StudentManagerController:
             parsed_result += f"{lastname},{firstname},,,{email}@lehre.dhbw-stuttgart.de\n"
 
         return parsed_result
+    
+    def parse_to_excel(self, text_content):
+        # Hier die eigentliche Parsing-Logik implementieren
+        # Verwendet Regular Expressions, um Informationen aus den Zeilen zu extrahieren
+        pattern = r'(\w+)\s+\(([^,]+),\s*([^)]+)\)'
+        matches = re.findall(pattern, text_content)
+
+        # Erstelle ein neues Workbook
+        workbook = Workbook()
+        sheet = workbook.active
+
+        # Schreibe Titelzeile
+        sheet["A1"] = "Nachname"
+        sheet["B1"] = "Vorname"
+        sheet["C1"] = "Firma"
+        sheet["D1"] = "Mat-Nr"
+        sheet["E1"] = "Email"
+
+        # Schreibe Daten in die Spalten
+        for row_idx, match in enumerate(matches, start=2):
+            email, lastname, firstname = match
+            sheet.cell(row=row_idx, column=1).value = lastname
+            sheet.cell(row=row_idx, column=2).value = firstname
+            # Firma und Mat-Nr leer lassen
+            sheet.cell(row=row_idx, column=3).value = ""
+            sheet.cell(row=row_idx, column=4).value = ""
+            sheet.cell(row=row_idx, column=5).value = f"{email}@lehre.dhbw-stuttgart.de"
+        
+        return workbook
 
     def import_students_from_csv_into_course(self, csv_path,course_id):
         try:
@@ -260,6 +300,25 @@ class StudentManagerController:
                     lastname, firstname, company, mat_number, email = [value.strip() for value in row]
                     new_student = self.add_student(lastname, firstname, email, company, mat_number,True)
                     self.add_student_to_course(new_student.student_id, course_id)
+
+        except Exception as e:
+            raise e
+        
+    def import_students_from_excel_into_course(self, excel_path, course_id):
+        try:
+            workbook = load_workbook(excel_path)
+            sheet = workbook.active
+
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                lastname = row[0]
+                firstname = row[1]
+                company = row[2]
+                mat_number = row[3]
+                email = row[4]
+                new_student = self.add_student(lastname, firstname, email, company, mat_number, True)
+                self.add_student_to_course(new_student.student_id, course_id)
+
+            workbook.close()
 
         except Exception as e:
             raise e
@@ -290,7 +349,43 @@ class StudentManagerController:
             return imported_assignments
         except Exception as e:
             raise e
-        
+
+    def import_assignments_from_excel_into_course(self, excel_path):
+        try:
+            wb = load_workbook(excel_path)
+            ws = wb.active
+
+            imported_assignments = []
+            
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                    assignment_type = row[0]
+                    last_name_student = row[1]
+                    first_name_student = row[2]
+                    topic = row[3]
+                    last_name_lecturer = row[4]
+                    first_name_lecturer = row[5]
+                    grade = row[6]
+                    date = row[7]
+                    time = row[8]
+                
+                    # Studentendaten holen
+                    student = self.read_student_by_name(last_name_student, first_name_student)
+                    if not student:
+                        raise StudentNotFoundException(f"Student {first_name_student} {last_name_student} nicht gefunden.")
+                    # Gutachterdaten holen
+                    lecturer = self.read_lecturer_by_name(last_name_lecturer, first_name_lecturer)
+                    if not lecturer:
+                        raise LecturerNotFoundException(f"Gutachter {first_name_lecturer} {last_name_lecturer} nicht gefunden.")
+                    
+                    # jetzt alle Daten zusammen also Assignment erstellen
+                    assignment = self.create_assignment(student.student_id, lecturer.lecturer_id, assignment_type, topic, grade, date, time)
+                    imported_assignments.append(assignment)
+
+            return imported_assignments
+        except Exception as e:
+            raise e
+
+
     def generate_assignment_list(self, type, course_id):
         # generiert eine Liste mit allen Studenten eines Kurses um eine Übersicht
         # über die Projekt-/Bachelorarbeiten zu erstellen, welche später eingelesen werden kann
@@ -303,6 +398,34 @@ class StudentManagerController:
             csv_data += f"{type}, {student.last_name}, {student.first_name}, , , , ,  , \n"
         
         return csv_data
+    
+    def generate_assignment_list_excel(self, assignment_type, course_id):
+        # generiert eine Excel-Datei mit allen Studenten eines Kurses um eine Übersicht
+        # über die Projekt-/Bachelorarbeiten zu erstellen, welche später eingelesen werden kann
+        wb = Workbook()
+        ws = wb.active
+        titles = "Typ, Nachname Student, Vorname Student, Thema, Nachname Gutachter, Vorname Gutachter, Note, Datum, Uhrzeit".split(", ")
+
+        course = self.read_course_by_id(course_id)
+        ws.title = course.course_name
+        students_list = self.read_all_students_by_course_id(course_id)
+
+        # Schreibe Titel in die erste Zeile
+        for col, title in enumerate(titles, start=1):
+            ws.cell(row=1, column=col).value = title
+
+        # Schreibe Studentendaten
+        for row_idx, student in enumerate(students_list, start=2):
+            # Schreibe Wert für die erste Spalte
+            ws.cell(row=row_idx, column=1).value = assignment_type
+            ws.cell(row=row_idx, column=2).value = student.last_name
+            ws.cell(row=row_idx, column=3).value = student.first_name
+                  
+        return wb
+
+
+
+
     
 # Mail Methoden
     def get_mail_text(self, type):

@@ -47,15 +47,16 @@ class GenerateAssignmentListWindow(tk.Toplevel):
         # Typ der Liste ermitteln
         type = self.type_dropdown.get()
         if type:
-            csv_data = self.master.master.controller.generate_assignment_list(type, course_id)
-
+            #csv_data = self.master.master.controller.generate_assignment_list(type, course_id)
+            workbook = self.master.master.controller.generate_assignment_list_excel(type, course_id)
             # Kursinfos beschaffen
             course = self.master.master.controller.read_course_by_id(course_id)
 
             # Ergebnis speichern
             save_path = self.save_path_entry.get()
             if save_path:
-                self.master.master.controller.save_list_to_file(csv_data, save_path, type, course.course_name)
+                #self.master.master.controller.save_list_to_file(csv_data, save_path, type, course.course_name)
+                self.master.master.controller.save_excel_to_file(workbook, save_path, type, course.course_name)
 
         # Schließe das Fenster nach Generierung und Speichern
         self.destroy()

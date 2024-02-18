@@ -50,14 +50,14 @@ class GenerateCourseListWindow(tk.Toplevel):
     def parse_text(self, course_id):
         # Funktion zum Parsen des Textes hier implementieren
         text_content = self.text_area.get("1.0", tk.END)
-        parsed_data = self.master.master.controller.parse_function(text_content)
+        workbook = self.master.master.controller.parse_to_excel(text_content)
 
         # Kursinfos beschaffen
         course = self.master.master.controller.read_course_by_id(course_id)
         
         # Ergebnis speichern
         save_path = self.save_path_entry.get()
-        self.master.master.controller.save_list_to_file(parsed_data, save_path, "Kursliste", course.course_name)
+        self.master.master.controller.save_excel_to_file(workbook, save_path, "Kursliste", course.course_name)
 
         # Schließe das Fenster nach Parsen und Speichern
         self.destroy()
