@@ -83,8 +83,7 @@ class OneStudentWindow(tk.Toplevel):
         yscrollbar_notes.pack(side=tk.RIGHT, fill=tk.Y)
         self.note_treeview.pack(fill=tk.BOTH, expand=True)
 
-        # Doppelklick-Ereignis auf den Treeview binden
-        self.note_treeview.bind("<Double-1>", lambda event, student_id=student.student_id: self.on_note_double_click(event, student_id))
+
 
         
 
@@ -148,6 +147,8 @@ class OneStudentWindow(tk.Toplevel):
             self.enrolled_var.set(bool(student.enrolled))
             # eventuell notiz holen
             self.load_student_notes(student.student_id)
+            # Doppelklick-Ereignis auf den Treeview binden
+            self.note_treeview.bind("<Double-1>", lambda event, student_id=student.student_id: self.on_note_double_click(event, student_id))
             
 
             # eventuell Kursname anzeigen, wenn Student eingeschrieben
