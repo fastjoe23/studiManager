@@ -57,8 +57,7 @@ class OneLecturerWindow(tk.Toplevel):
         yscrollbar_notes.pack(side=tk.RIGHT, fill=tk.Y)
         self.note_treeview.pack(fill=tk.BOTH, expand=True)
 
-        # Doppelklick-Ereignis auf den Treeview binden
-        self.note_treeview.bind("<Double-1>", lambda event, lecturer_id=lecturer.lecturer_id: self.on_note_double_click(event, lecturer_id))
+
 
         # Wenn ein Dozent vorhanden ist, fülle die Eingabefelder und das Notizfeld vor
         if lecturer:
@@ -69,6 +68,8 @@ class OneLecturerWindow(tk.Toplevel):
 
             # Notizfeld befüllen, falls vorhanden
             self.load_lecturer_notes(lecturer.lecturer_id)
+            # Doppelklick-Ereignis auf den Treeview binden
+            self.note_treeview.bind("<Double-1>", lambda event, lecturer_id=lecturer.lecturer_id: self.on_note_double_click(event, lecturer_id))            
 
             # Zeige die zugehörigen Assignments an
             # Frame für die Zuordnung der Dozentenarbeiten
