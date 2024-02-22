@@ -81,7 +81,7 @@ class OneAssignmentWindow(tk.Toplevel):
         # fülle die Combobox mit allen möglichen Gutachtern
         all_lecturers = parent.controller.read_all_lecturers()
         lecturer_names = [", ".join([lecturer.last_name, lecturer.first_name]) for lecturer in all_lecturers]
-        self.lecturer_combobox['values'] = lecturer_names
+        self.lecturer_combobox['values'] = sorted(lecturer_names)
 
 
         # Wenn Assignment vorhanden ist, fülle die Eingabefelder vor

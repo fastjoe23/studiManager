@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from views.one_assignment_frame import OneAssignmentWindow
+from views.one_note_frame import OneNoteWindow
 
 class OneStudentWindow(tk.Toplevel):
     def __init__(self, parent, student=None, *args, **kwargs):
@@ -65,12 +66,29 @@ class OneStudentWindow(tk.Toplevel):
         # Gruppe 3: Notizfeld
         notes_frame = tk.Frame(input_frame)
         notes_frame.pack(side=tk.LEFT, padx=10)
-        note_label = tk.Label(notes_frame, text="Notizen")
-        note_label.pack(padx=10, pady=10)
-        self.note_text  = tk.Text(notes_frame, height=6, width=25)
-        self.note_text.pack()
+        notes_label_frame = tk.Frame(notes_frame)
+        notes_label_frame.pack(pady=5)
+        note_label = tk.Label(notes_label_frame, text="Notizen")
+        note_label.pack(fill=tk.X, side=tk.LEFT, padx=10, pady=5)
+        self.add_note_button = tk.Button(notes_label_frame, text= "+", command=lambda: self.add_note(student.student_id))
+        self.add_note_button.pack(fill=tk.X, side=tk.RIGHT, padx=10, pady=5)
+        self.note_treeview = ttk.Treeview(notes_frame, columns=("note_id", "title"), show="headings", height=5)
+        self.note_treeview.heading("note_id", text="ID")
+        self.note_treeview.column("note_id", width=30)
+        self.note_treeview.heading("title", text="Titel")
+        # Vertikale Scrollbar hinzufügen
+        yscrollbar_notes = ttk.Scrollbar(notes_frame, orient='vertical', command=self.note_treeview.yview)
+        self.note_treeview.configure(yscrollcommand=yscrollbar_notes.set)
 
-        # wenn Student vorhanden, dann zeige Assignments-Tabelle an
+        yscrollbar_notes.pack(side=tk.RIGHT, fill=tk.Y)
+        self.note_treeview.pack(fill=tk.BOTH, expand=True)
+
+        # Doppelklick-Ereignis auf den Treeview binden
+        self.note_treeview.bind("<Double-1>", lambda event, student_id=student.student_id: self.on_note_double_click(event, student_id))
+
+        
+
+        # wenn Student vorhanden, dann zeige Assignments-Tabelle 
         
         if student:
             #Frame für studentische Arbeiten
@@ -102,7 +120,8 @@ class OneStudentWindow(tk.Toplevel):
             self.tree.pack(fill=tk.BOTH, expand=True)
 
             # Doppelklick-Ereignis auf den Treeview binden
-            self.tree.bind("<Double-1>", lambda event: self.on_double_click(parent, student, event))
+            self.tree.bind("<Double-1>", lambda event: self.on_student_double_click(parent, student, event))
+
 
         # Buttons
         button_frame = tk.Frame(self)
@@ -128,9 +147,8 @@ class OneStudentWindow(tk.Toplevel):
             self.mat_number_entry.insert(0, student.mat_number)
             self.enrolled_var.set(bool(student.enrolled))
             # eventuell notiz holen
-            self.note = parent.controller.read_note_by_type_and_related_id("student", student.student_id)
-            if self.note:
-                self.note_text.insert("1.0",self.note.note)
+            self.load_student_notes(student.student_id)
+            
 
             # eventuell Kursname anzeigen, wenn Student eingeschrieben
             enrollments = parent.controller.read_all_enrollments_by_student_id(student.student_id)
@@ -149,9 +167,12 @@ class OneStudentWindow(tk.Toplevel):
         for i, item in enumerate(items):
             self.tree.move(item, "", i)
 
-    def on_double_click(self, parent, student, event):
+    def on_student_double_click(self, parent, student, event):
         # Funktion, die bei Doppelklick auf eine Zeile aufgerufen wird
         self.update_selected_assignment(parent, student)
+
+    def on_note_double_click(self, event, student_id):
+        self.update_selected_note(student_id)        
 
     def add_or_edit_student(self, parent, student):
         try:
@@ -162,23 +183,14 @@ class OneStudentWindow(tk.Toplevel):
             company = self.company_entry.get()
             mat_number = self.mat_number_entry.get()
             enrolled = self.enrolled_var.get()
-            actual_note_text = self.note_text.get("1.0", "end-1c")
 
             if student:
                 # Bearbeite den vorhandenen Student, wenn Student_data vorhanden ist
                 parent.controller.update_student(student.student_id, student.person_id, last_name, first_name, email,
                                                 company, mat_number, enrolled)
-                # update der Notiztexte
-                if self.note:
-                    parent.controller.update_note_by_id(self.note.note_id, actual_note_text)
-                else:
-                    parent.controller.create_note("student", student.student_id, actual_note_text)
             else:
                 # Füge hier die Logik zum Hinzufügen der Student hinzu
                 new_student = parent.controller.add_student(last_name, first_name, email, company, mat_number, enrolled)
-                # füge ggf. gleich Notiz hinzu
-                if actual_note_text:
-                    parent.controller.create_note("student", new_student.student_id, actual_note_text)
 
             # Schließe das Fenster nach dem Hinzufügen oder Bearbeiten
             self.destroy()
@@ -187,6 +199,39 @@ class OneStudentWindow(tk.Toplevel):
             # Wenn ein Fehler auftritt, zeige eine Meldung an
             error_label = tk.Label(self, text=str(e), fg="red")
             error_label.pack(pady=5)
+
+    def load_student_notes(self, student_id):
+        list_of_notes = self.master.controller.read_notes_by_type_and_related_id("student",student_id)
+
+        # Lösche die Tabelle
+        for row in self.note_treeview.get_children():
+            self.note_treeview.delete(row)
+
+        for note in list_of_notes:
+            self.note_treeview.insert("", tk.END, values=(note.note_id, note.note_title))
+
+    def update_selected_note(self, student_id):
+        # Erhalte die ausgewählte Zeile in der Tabelle
+        selected_item = self.note_treeview.selection()
+
+        if not selected_item:
+            # Keine Zeile ausgewählt
+            return
+        
+        note_id = self.note_treeview.item(selected_item, "values")[0]
+        #Öffne das Fenster zum Hinzufügen oder Ändern einer Notiz
+        add_note_window = OneNoteWindow(self.master, "student", student_id, note_id)
+        add_note_window.grab_set()
+        add_note_window.wait_window()
+        
+        self.load_student_notes(student_id)
+
+    def add_note(self, student_id):
+        add_note_window = OneNoteWindow(self.master, "student", student_id)
+        add_note_window.grab_set()
+        add_note_window.wait_window()
+        
+        self.load_student_notes(student_id)
 
     def update_selected_assignment(self, parent, student):
         # Erhalte die ausgewählte Zeile in der Tabelle

@@ -212,15 +212,21 @@ class StudentManagerController:
             self.create_last_used_item(type, new_elements)
 
 # Methoden für Notizen
-    def create_note(self, note_type, related_id, note):
-        return self.model.note.create_note(note_type, related_id, note)
+    def create_note(self, new_note):
+        return self.model.note.create_note(new_note)
+    
+    def read_all_notes(self):
+        return self.model.note.read_all_notes()
 
-    def read_note_by_type_and_related_id(self, note_type, related_id):
-        return self.model.note.read_note_by_type_and_related_id(note_type, related_id)
+    def read_notes_by_type_and_related_id(self, note_type, related_id):
+        return self.model.note.read_notes_by_type_and_related_id(note_type, related_id)
 
     def update_note_by_id(self, note_id, new_note):
         return self.model.note.update_note_by_id(note_id, new_note)
-
+    
+    def read_note_by_id(self, note_id):
+        return self.model.note.read_note_by_id(note_id)
+    
     def delete_note_by_id(self, note_id):
         return self.model.note.delete_note_by_id(note_id)
 

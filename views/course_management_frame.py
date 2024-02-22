@@ -3,6 +3,7 @@ from tkinter import ttk, filedialog, messagebox, font
 from views.all_students_window import AllStudentsWindow
 from views.generate_assignment_list_window import GenerateAssignmentListWindow
 from views.generate_course_list_window import GenerateCourseListWindow
+from views.one_note_frame import OneNoteWindow
 from views.one_student_frame import OneStudentWindow
 from views.send_mail_frame import SendMailWindow
 from views.create_evaluation_pdf_frame import CreateEvaluationPDFWindow
@@ -80,38 +81,57 @@ class CourseManagementFrame(tk.Frame):
 
 
         # Vertikale Scrollbar hinzufügen
-        yscrollbar = ttk.Scrollbar(students_frame, orient='vertical', command=self.tree.yview)
-        self.tree.configure(yscrollcommand=yscrollbar.set)
+        yscrollbar_notes = ttk.Scrollbar(students_frame, orient='vertical', command=self.tree.yview)
+        self.tree.configure(yscrollcommand=yscrollbar_notes.set)
 
-        yscrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        yscrollbar_notes.pack(side=tk.RIGHT, fill=tk.Y)
         self.tree.pack(fill=tk.BOTH, expand=True)
 
         # Doppelklick-Ereignis auf den Treeview binden
-        self.tree.bind("<Double-1>", lambda event, course_id=course_id: self.on_double_click(event, course_id))
+        self.tree.bind("<Double-1>", lambda event, course_id=course_id: self.on_student_double_click(event, course_id))
 
-        # unterer Teil für Notizen
+        # Unterer Teil für Notizen
         notes_frame = tk.Frame(right_frame)
-        notes_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, padx= 10, pady=10)
-        # Großes Textfeld für Notizen zum Kurs
-        note_label = tk.Label(notes_frame, text="Notizen", font=font.Font(family="Arial", size=12, weight="bold"))
-        note_label.pack(pady=10)
+        notes_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, padx=10, pady=10)
 
-        self.note_text  = tk.Text(notes_frame, height=4, width=100)
-        self.note_text.pack()
+        # Label für Notizen
+        notes_label_frame = tk.Frame(notes_frame)
+        notes_label_frame.pack(pady=5)
+        note_label = tk.Label(notes_label_frame, text="Notizen", font=font.Font(family="Arial", size=12, weight="bold"))
+        note_label.pack(fill=tk.X, side=tk.LEFT, padx=10, pady=5)
+        self.add_note_button = tk.Button(notes_label_frame, text= "+", command=lambda: self.add_note(course_id))
+        self.add_note_button.pack(fill=tk.X, side=tk.RIGHT, padx=10, pady=5)
 
+        # Treeview für Notizen
+        self.note_treeview = ttk.Treeview(notes_frame, columns=("note_id", "title", "kurzfassung"), show="headings")
+        self.note_treeview.heading("note_id", text="ID")
+        self.note_treeview.heading("title", text="Titel")
+        self.note_treeview.heading("kurzfassung", text="Kurzfassung")
+
+        
+        # Vertikale Scrollbar hinzufügen
+        yscrollbar_notes = ttk.Scrollbar(notes_frame, orient='vertical', command=self.note_treeview.yview)
+        self.note_treeview.configure(yscrollcommand=yscrollbar_notes.set)
+
+        yscrollbar_notes.pack(side=tk.RIGHT, fill=tk.Y)
+        self.note_treeview.pack(fill=tk.BOTH, expand=True)
+
+        # Doppelklick-Ereignis auf den Treeview binden
+        self.note_treeview.bind("<Double-1>", lambda event, course_id=course_id: self.on_note_double_click(event, course_id))
+
+        # Notizen hinzufügen
+        self.load_course_notes(course_id)
+        
 
         # Lade die Liste der eingeschriebenen Studenten
         self.load_enrolled_students(course_id)
 
-        # Lade eventuell gespeicherte Notiz
-        self.note = self.load_note(course_id)
-        # textfeld füllen
-        if self.note:
-            self.note_text.insert("1.0", self.note.note)
-
-    def on_double_click(self, event, course_id):
+    def on_student_double_click(self, event, course_id):
         # Funktion, die bei Doppelklick auf eine Zeile aufgerufen wird
         self.update_selected_student(course_id)
+
+    def on_note_double_click(self, event, course_id):
+        self.update_selected_note(course_id)
 
     def add_student_to_course(self, parent, course_id):
         # Logik zum Hinzufügen eines Studenten zum Kurs
@@ -193,17 +213,8 @@ class CourseManagementFrame(tk.Frame):
         add_generate_window.wait_window()
 
     def close_course_management(self, course_id):
-        # vorm Schließen noch die Notiz speichern
-        self.save_note(course_id)
-
+        
         self.master.show_main_frame()
-
-    def save_note(self, course_id):
-        actual_note_text = self.note_text.get("1.0", "end-1c")
-        if self.note:
-            self.master.controller.update_note_by_id(self.note.note_id, actual_note_text)
-        else: # wir müssen neue Notiz anlegen
-            self.master.controller.create_note("course", course_id, actual_note_text)
 
 
     def load_enrolled_students(self,course_id):
@@ -217,9 +228,15 @@ class CourseManagementFrame(tk.Frame):
         for student in enrolled_students:
             self.tree.insert("", tk.END, values=(student.student_id, student.first_name, student.last_name, student.email))
     
-    def load_note(self, course_id):
-        note = self.master.controller.read_note_by_type_and_related_id("course",course_id)
-        return note
+    def load_course_notes(self, course_id):
+        list_of_notes = self.master.controller.read_notes_by_type_and_related_id("course",course_id)
+
+        # Lösche die Tabelle
+        for row in self.note_treeview.get_children():
+            self.note_treeview.delete(row)
+
+        for note in list_of_notes:
+            self.note_treeview.insert("", tk.END, values=(note.note_id, note.note_title, note.note[:50]))
 
 
 
@@ -242,3 +259,28 @@ class CourseManagementFrame(tk.Frame):
         add_student_window.wait_window()  # Blockiert das Hauptfenster, bis das Unterfenster geschlossen wird
         
         self.load_enrolled_students(course_id)
+
+    def update_selected_note(self, course_id):
+        # Erhalte die ausgewählte Zeile in der Tabelle
+        selected_item = self.note_treeview.selection()
+
+        if not selected_item:
+            # Keine Zeile ausgewählt
+            return
+        
+        note_id = self.note_treeview.item(selected_item, "values")[0]
+        #Öffne das Fenster zum Hinzufügen oder Ändern einer Notiz
+        add_note_window = OneNoteWindow(self.master, "course", course_id, note_id)
+        add_note_window.grab_set()
+        add_note_window.wait_window()
+        
+        self.load_course_notes(course_id)
+
+    def add_note(self, course_id):
+        add_note_window = OneNoteWindow(self.master, "course", course_id)
+        add_note_window.grab_set()
+        add_note_window.wait_window()
+        
+        self.load_course_notes(course_id)
+
+

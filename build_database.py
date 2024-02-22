@@ -102,9 +102,12 @@ def create_database():
     cursor.execute('''
         CREATE TABLE notes (
         note_id INTEGER PRIMARY KEY,
-        note_type TEXT, -- Spalte für den Notiztyp (z.B. 'student' oder 'course')
-        related_id INTEGER, -- ID des zugehörigen Studenten oder Kurses
-        note TEXT
+        note_type TEXT,
+        related_id INTEGER,
+        note_title TEXT,
+        note TEXT,
+        creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        last_modification_date TIMESTAMP DEFAULT NULL
         )
     ''')
 

@@ -9,15 +9,16 @@ conn = sqlite3.connect(DATABASE_NAME)
 cursor = conn.cursor()
 
 print("Vorm Löschen")
-cursor.execute('SELECT * FROM students')
+cursor.execute('SELECT * FROM notes')
 result_list = cursor.fetchall()
 for row in result_list:
     print(row)
 
-#cursor.execute('DELETE FROM config')
+print("Löschen")
+cursor.execute("Delete from notes where note_id = 28")
 
 print("Nach dem Löschen")
-cursor.execute('SELECT * FROM config')
+cursor.execute('SELECT * FROM notes')
 result_list = cursor.fetchall()
 for row in result_list:
     print(row)

@@ -799,7 +799,7 @@ class Assignments:
                 date = ?,
                 time = ?
             WHERE assignment_id = ?
-        ''', (student_id, lecturer_id, type, topic, real_grade, date, time, assignment_id))
+        ''', (student_id, lecturer_id, type, topic, real_grade, date, time, assignment_id,))
         self.conn.commit()
 
     def delete_assignment(self, assignment_id):
@@ -860,7 +860,7 @@ class LastUsedItems():
             UPDATE lastUsedItems
             SET elements = ?
             WHERE type = ?
-        ''', (elements_as_string, type))
+        ''', (elements_as_string, type, ))
         self.conn.commit()
 
     def delete_all_last_used_elements(self):
@@ -882,42 +882,91 @@ class Notes:
         self.note_id = None
         self.note_type = None
         self.related_id = None
+        self.note_title= None
         self.note = None
+        self.creation_date = None
+        self.last_modification_date = None
         self.conn = None
         self.cursor = None
         self.connect_to_database()
 
-    def create_note(self, note_type, related_id, note):
+    def create_note(self, new_note):
         self.cursor.execute('''
-            INSERT INTO notes (note_type, related_id, note)
-            VALUES (?, ?, ?)
-        ''', (note_type, related_id, note))
+            INSERT INTO notes (note_type, related_id, note_title, note, last_modification_date)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (new_note.note_type, new_note.related_id, new_note.note_title, new_note.note, new_note.last_modification_date, ))
         self.conn.commit()
 
-    def read_note_by_type_and_related_id(self, note_type, related_id):
+    def read_all_notes(self):
+        notes_dBDump = self.read_all_notes_from_db()
+
+        #baue Liste von Notizen aus DB Dump
+        notes_list =[]
+        for row in notes_dBDump:
+            new_note = Notes()
+            new_note.note_id = row[0]
+            new_note.note_type = row[1]
+            new_note.related_id = row[2]
+            new_note.note_title = row[3]
+            new_note.note = row[4]
+            new_note.creation_date = row[5]
+            new_note.last_modification_date = row[6]
+            notes_list.append(new_note)
+
+        return notes_list
+    
+    def read_all_notes_from_db(self):
+        self.cursor.execute('SELECT * FROM notes')
+        return self.cursor.fetchall()        
+
+    def read_notes_by_type_and_related_id(self, note_type, related_id):
         self.cursor.execute('''
             SELECT * FROM notes
             WHERE note_type = ? AND related_id = ?
-        ''', (note_type, related_id))
-        db_dump = self.cursor.fetchone()
+        ''', (note_type, related_id, ))
+        notes_db_dump = self.cursor.fetchall()
 
-        if db_dump:
+        notes = []
+        for row in notes_db_dump:
             note = Notes()
-            note.note_id = db_dump[0]
-            note.note_type = db_dump[1]
-            note.related_id = db_dump[2]
-            note.note = db_dump[3]
-            
-            return note
-        else:
-            return None
+            note.note_id = row[0]
+            note.note_type = row[1]
+            note.related_id = row[2]
+            note.note_title = row[3]
+            note.note = row[4]
+            note.creation_date = row[5]
+            note.last_modification_date = row[6]
+            notes.append(note)
+
+        return notes
+    
+    def read_note_by_id(self, note_id):
+        self.cursor.execute('''
+                SELECT * FROM notes
+                WHERE note_id = ?
+                            ''', (note_id, ))
+        note_db_dumb = self.cursor.fetchone()
+
+        note = Notes()
+        note.note_id = note_db_dumb[0]
+        note.note_type = note_db_dumb[1]
+        note.related_id = note_db_dumb[2]
+        note.note_title = note_db_dumb[3]
+        note.note = note_db_dumb[4]
+        note.creation_date = note_db_dumb[5]
+        note.last_modification_date = note_db_dumb[6]
+
+        return note
+
 
     def update_note_by_id(self, note_id, new_note):
         self.cursor.execute('''
             UPDATE notes
-            SET note = ?
+            SET note_title = ?,
+            note = ?,
+            last_modification_date = ?
             WHERE note_id = ?
-        ''', (new_note, note_id))
+        ''', (new_note.note_title, new_note.note, new_note.last_modification_date, note_id))
         self.conn.commit()
 
     def delete_note_by_id(self, note_id):

@@ -2,6 +2,7 @@
 import tkinter as tk
 from studi_manager_controller import StudentManagerController
 from studi_manager_model import Model
+from views.notes_frame import NotesFrame
 from views.welcome_frame import WelcomeFrame
 from views.persons_frame import PersonsFrame
 from views.one_person_frame import OnePersonWindow
@@ -23,7 +24,7 @@ class MainApplication(tk.Tk):
         """Initialisiert die Hauptanwendung."""
         tk.Tk.__init__(self, *args, **kwargs)
         self.title("DHBW Studenten Verwaltung")
-        self.geometry("1200x600")
+        self.geometry("1200x650")
 
         # Model und Controller initialisieren
         self.model = Model()
@@ -77,6 +78,7 @@ class MainApplication(tk.Tk):
         persons_menu.add_command(label="Neue Person anlegen", command=self.create_new_person)
         persons_menu.add_command(label="Einschreibungen anzeigen", command=self.show_all_enrollments)
         persons_menu.add_command(label="Stud. Arbeiten anzeigen", command=self.show_all_assignments)
+        persons_menu.add_command(label="Notizen anzeigen", command=self.show_all_notes)
 
     def add_settings_menu(self, menubar):
         """Fügt das Menü für Sonstiges hinzu."""
@@ -149,6 +151,12 @@ class MainApplication(tk.Tk):
         self.main_frame.destroy()
         self.main_frame = AssignmentsFrame(self)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
+
+    def show_all_notes(self):
+        """Zeigt alle Notizen an."""
+        self.main_frame.destroy()
+        self.main_frame = NotesFrame(self)
+        self.main_frame.pack(fill=tk.BOTH, expand=True)        
 
     def show_settings(self):
         """Öffnet das Einstellungen Fenster."""
