@@ -96,9 +96,7 @@ class PresentationEvaluationPDF(FPDF):
             pdf_file_path = self.save_path + f"/{str(self.course_name)}_{str(self.evaluation_type).replace(' ','')}_{str(self.student_name).replace(' ','')}_Bewertungsbogen.pdf"
             self.output(pdf_file_path)
             return pdf_file_path
-        
+
         except Exception as e:
             error_message = f"Fehler bei der Erstellung der Bewertung: {self.topic} {e}"
-            raise EvaluationCreationError(error_message)
-
-
+            raise EvaluationCreationError(error_message) from e

@@ -1,5 +1,7 @@
 import sqlite3
-DATABASE_NAME = 'studimanagerDatabase.db' #configs.data_base_Name
+
+DATABASE_NAME = "studimanagerDatabase.db"  # configs.data_base_Name
+
 
 def create_database():
     # Verbindung zur Datenbank herstellen (dies erstellt die Datenbank, wenn sie nicht vorhanden ist)
@@ -9,15 +11,18 @@ def create_database():
     cursor = conn.cursor()
 
     # Tabelle für Konfigurationsdaten erstellen
-    cursor.execute('''
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS config (
             attribute TEXT NOT NULL PRIMARY KEY,
             value TEXT
         )
-    ''')   
+    """
+    )
 
     # Tabelle für Personen erstellen
-    cursor.execute('''
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS persons (
             person_id INTEGER PRIMARY KEY AUTOINCREMENT,
             first_name TEXT,
@@ -26,10 +31,12 @@ def create_database():
             creation_date DATETIME DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(person_id)
         )
-    ''')
+    """
+    )
 
     # Tabelle für Studenten erstellen (erbt von Personen)
-    cursor.execute('''
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS students (
             student_id INTEGER PRIMARY KEY AUTOINCREMENT,
             person_id INTEGER UNIQUE,
@@ -39,20 +46,24 @@ def create_database():
             creation_date DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (person_id) REFERENCES persons (person_id) ON DELETE CASCADE
         )
-    ''')
+    """
+    )
 
     # Tabelle für Kurse erstellen
-    cursor.execute('''
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS courses (
             course_id INTEGER PRIMARY KEY AUTOINCREMENT,
             course_name TEXT,
             start_date TEXT,
             creation_date DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-    ''')
+    """
+    )
 
     # Tabelle für Gutachter / Dozenten erstellen
-    cursor.execute('''
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS lecturers (
             lecturer_id INTEGER PRIMARY KEY AUTOINCREMENT,
             person_id INTEGER UNIQUE,
@@ -60,10 +71,12 @@ def create_database():
             creation_date DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (person_id) REFERENCES persons (person_id)
         )
-    ''')
+    """
+    )
 
-        # Tabelle für studentische Arbeiten erstellen
-    cursor.execute('''
+    # Tabelle für studentische Arbeiten erstellen
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS assignments (
             assignment_id INTEGER PRIMARY KEY AUTOINCREMENT,
             student_id INTEGER,
@@ -77,10 +90,12 @@ def create_database():
             FOREIGN KEY (student_id) REFERENCES students (student_id),
             FOREIGN KEY (lecturer_id) REFERENCES lecturers (lecturer_id)
         )
-    ''')
+    """
+    )
 
-    # enrollments Tabelle 
-    cursor.execute('''
+    # enrollments Tabelle
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS enrollments (
             enrollment_id INTEGER PRIMARY KEY AUTOINCREMENT,
             student_id INTEGER,
@@ -88,18 +103,22 @@ def create_database():
             FOREIGN KEY (student_id) REFERENCES students (student_id),
             FOREIGN KEY (course_id) REFERENCES courses (course_id)
         )
-    ''')
+    """
+    )
 
     # lastUsedItems tabelle
-    cursor.execute('''
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS lastUsedItems (
                    type TEXT,
                    elements TEXT
             )           
-        ''')
+        """
+    )
 
     # Tabelle für Notizen
-    cursor.execute('''
+    cursor.execute(
+        """
         CREATE TABLE notes (
         note_id INTEGER PRIMARY KEY,
         note_type TEXT,
@@ -109,11 +128,13 @@ def create_database():
         creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         last_modification_date TIMESTAMP DEFAULT NULL
         )
-    ''')
+    """
+    )
 
     # Änderungen speichern und Verbindung schließen
     conn.commit()
     conn.close()
+
 
 if __name__ == "__main__":
     create_database()

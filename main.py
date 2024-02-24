@@ -156,7 +156,7 @@ class MainApplication(tk.Tk):
         """Zeigt alle Notizen an."""
         self.main_frame.destroy()
         self.main_frame = NotesFrame(self)
-        self.main_frame.pack(fill=tk.BOTH, expand=True)        
+        self.main_frame.pack(fill=tk.BOTH, expand=True)
 
     def show_settings(self):
         """Öffnet das Einstellungen Fenster."""

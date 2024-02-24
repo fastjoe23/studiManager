@@ -35,7 +35,7 @@ class DHBWMail:
                 result['success'] = True
         except Exception as e:
             result['error_message'] = str(e)
-        
+
         return result
 
     def _create_attachment(self, file_path):

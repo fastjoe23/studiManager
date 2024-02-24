@@ -1,6 +1,7 @@
 import base64
 import sqlite3
 
+
 class Config:
     def __init__(self):
         # Konstante Werte
@@ -25,31 +26,31 @@ class Config:
 
     def get_smtp_port(self):
         return self._decode(self.get_attribute_from_db("SmtpPort"))
-    
+
     def get_smtp_username(self):
         return self._decode(self.get_attribute_from_db("SmtpUsername"))
-    
+
     def get_smtp_password(self):
         return self._decode(self.get_attribute_from_db("SmtpPassword"))
-    
+
     def set_smtp_server(self):
-        self.save_attribute_to_dB("SmtpServer", self._encode(self.smtp_server))
+        self.save_attribute_to_db("SmtpServer", self._encode(self.smtp_server))
 
     def set_smtp_port(self):
-        self.save_attribute_to_dB("SmtpPort", self._encode(self.smtp_port))
-    
+        self.save_attribute_to_db("SmtpPort", self._encode(self.smtp_port))
+
     def set_smtp_username(self):
-        self.save_attribute_to_dB("SmtpUsername", self._encode(self.smtp_username))
-    
+        self.save_attribute_to_db("SmtpUsername", self._encode(self.smtp_username))
+
     def set_smtp_password(self):
-        self.save_attribute_to_dB("SmtpPassword", self._encode(self.smtp_password))
+        self.save_attribute_to_db("SmtpPassword", self._encode(self.smtp_password))
 
     def _encode(self, value):
         if value:
             return base64.b64encode(value.encode()).decode()
         else:
             return None
-    
+
     def _decode(self, value):
         if value:
             return base64.b64decode(value.encode()).decode()
@@ -64,32 +65,37 @@ class Config:
 
     def get_attribute_from_db(self, attribute):
         # Daten aus der Datenbank abfragen
-        self.cursor.execute('SELECT value FROM config WHERE attribute = ?', (attribute,))
+        self.cursor.execute(
+            "SELECT value FROM config WHERE attribute = ?", (attribute,)
+        )
 
         # Ergebnis abrufen
         result = self.cursor.fetchone()
 
         # Verbindung schließen
         return result[0] if result else None
-    
-    def save_attribute_to_dB(self, attribute, value):
+
+    def save_attribute_to_db(self, attribute, value):
         if value:
-            self.cursor.execute('''
+            self.cursor.execute(
+                """
                 INSERT OR IGNORE INTO config (attribute, value)
                 VALUES (?, ?)
-            ''', (attribute, str(value)))
+            """,
+                (attribute, str(value)),
+            )
 
-            self.cursor.execute('''
+            self.cursor.execute(
+                """
                 UPDATE config
                 SET value = ?
                 WHERE attribute = ?
-            ''', (str(value), attribute))
+            """,
+                (str(value), attribute),
+            )
 
             # Transaktion bestätigen und Verbindung schließen
             self.conn.commit()
 
-    
     def __del__(self):
         self.conn.close()
-    
-
