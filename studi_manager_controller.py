@@ -509,7 +509,8 @@ class StudentManagerController:
         students_list = self.read_all_students_by_course_id(course_id)
 
         for student in students_list:
-            csv_data += f"{assignment_type}, {student.last_name}, {student.first_name}, , , , ,  , \n"
+            if student.enrolled:
+                csv_data += f"{assignment_type}, {student.last_name}, {student.first_name}, , , , ,  , \n"
 
         return csv_data
 
@@ -531,11 +532,14 @@ class StudentManagerController:
             ws.cell(row=1, column=col).value = title
 
         # Schreibe Studentendaten
-        for row_idx, student in enumerate(students_list, start=2):
-            # Schreibe Wert für die erste Spalte
-            ws.cell(row=row_idx, column=1).value = assignment_type
-            ws.cell(row=row_idx, column=2).value = student.last_name
-            ws.cell(row=row_idx, column=3).value = student.first_name
+        row_idx = 2
+        for student in students_list:
+            if student.enrolled:
+                # Schreibe Werte des Studenten in die entsprechende Zeile
+                ws.cell(row=row_idx, column=1).value = assignment_type
+                ws.cell(row=row_idx, column=2).value = student.last_name
+                ws.cell(row=row_idx, column=3).value = student.first_name
+                row_idx += 1
 
         return wb
 
@@ -556,7 +560,7 @@ class StudentManagerController:
                 + " übernehmen.\n"
                 + "Bitte nehmen Sie über die in CC stehende E-Mail-Adresse Kontakt mit Ihrem Gutachter auf, um sich über die Ausarbeitung der Arbeit abzustimmen.\n\n"
                 + "Viel Erfolg und freundliche Grüße\n"
-                + " "
+                + "Jonas Offtermatt "
             )
 
         return text
