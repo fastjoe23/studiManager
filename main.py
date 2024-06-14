@@ -1,5 +1,8 @@
 """ module for window application    """
+
 import tkinter as tk
+import logging
+from config import Config
 from studi_manager_controller import StudentManagerController
 from studi_manager_model import Model
 from views.notes_frame import NotesFrame
@@ -17,6 +20,7 @@ from views.course_management_frame import CourseManagementFrame
 from views.assignments_frame import AssignmentsFrame
 from views.email_settings_frame import EmailSettingsWindow
 
+
 class MainApplication(tk.Tk):
     """Hauptanwendungsklasse für die DHBW-Studentenverwaltung."""
 
@@ -25,6 +29,19 @@ class MainApplication(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         self.title("DHBW Studenten Verwaltung")
         self.geometry("1200x650")
+
+        # Konfigurationsdaten holen
+        configs = Config()
+
+        # Logger initialisieren
+        self.logger = logging.getLogger(__name__)
+        logging.basicConfig(
+            filename=configs.log_file_path + configs.log_file_name,
+            encoding="utf-8",
+            level=configs.log_level,
+            format=configs.log_format
+        )
+        self.logger.info("Application started")
 
         # Model und Controller initialisieren
         self.model = Model()
@@ -53,41 +70,63 @@ class MainApplication(tk.Tk):
         """Fügt das Menü für Kurse hinzu."""
         courses_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Kurse", menu=courses_menu)
-        courses_menu.add_command(label="Alle Kurse anzeigen", command=self.show_all_courses)
-        courses_menu.add_command(label="Neuen Kurs anlegen", command=self.create_new_course)
+        courses_menu.add_command(
+            label="Alle Kurse anzeigen", command=self.show_all_courses
+        )
+        courses_menu.add_command(
+            label="Neuen Kurs anlegen", command=self.create_new_course
+        )
 
     def add_students_menu(self, menubar):
         """Fügt das Menü für Studenten hinzu."""
         students_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Studenten", menu=students_menu)
-        students_menu.add_command(label="Alle Studenten anzeigen", command=self.show_all_students)
-        students_menu.add_command(label="Neuen Student anlegen", command=self.create_new_student)
+        students_menu.add_command(
+            label="Alle Studenten anzeigen", command=self.show_all_students
+        )
+        students_menu.add_command(
+            label="Neuen Student anlegen", command=self.create_new_student
+        )
 
     def add_lecturers_menu(self, menubar):
         """Fügt das Menü für Dozenten/Gutachter hinzu."""
         lecturers_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Dozenten/Gutachter", menu=lecturers_menu)
-        lecturers_menu.add_command(label="Alle Dozenten/Gutachter anzeigen", command=self.show_all_lecturers)
-        lecturers_menu.add_command(label="Neuen Dozent/Gutachter anlegen", command=self.create_new_lecturer)
+        lecturers_menu.add_command(
+            label="Alle Dozenten/Gutachter anzeigen", command=self.show_all_lecturers
+        )
+        lecturers_menu.add_command(
+            label="Neuen Dozent/Gutachter anlegen", command=self.create_new_lecturer
+        )
 
     def add_persons_menu(self, menubar):
         """Fügt das Menü für Personen hinzu."""
         persons_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Datenbestände", menu=persons_menu)
-        persons_menu.add_command(label="Alle Personen anzeigen", command=self.show_all_persons)
-        persons_menu.add_command(label="Neue Person anlegen", command=self.create_new_person)
-        persons_menu.add_command(label="Einschreibungen anzeigen", command=self.show_all_enrollments)
-        persons_menu.add_command(label="Stud. Arbeiten anzeigen", command=self.show_all_assignments)
+        persons_menu.add_command(
+            label="Alle Personen anzeigen", command=self.show_all_persons
+        )
+        persons_menu.add_command(
+            label="Neue Person anlegen", command=self.create_new_person
+        )
+        persons_menu.add_command(
+            label="Einschreibungen anzeigen", command=self.show_all_enrollments
+        )
+        persons_menu.add_command(
+            label="Stud. Arbeiten anzeigen", command=self.show_all_assignments
+        )
         persons_menu.add_command(label="Notizen anzeigen", command=self.show_all_notes)
 
     def add_settings_menu(self, menubar):
         """Fügt das Menü für Sonstiges hinzu."""
         settings_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Sonstiges", menu=settings_menu)
-        settings_menu.add_command(label="Email Einstellungen", command=self.show_settings)
+        settings_menu.add_command(
+            label="Email Einstellungen", command=self.show_settings
+        )
 
     def show_main_frame(self):
-        """ Zeigt den Start-Bildschirm an"""
+        """Zeigt den Start-Bildschirm an"""
         self.main_frame.destroy()
         self.main_frame = WelcomeFrame(self)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
@@ -170,8 +209,11 @@ class MainApplication(tk.Tk):
         self.main_frame = CourseManagementFrame(self, course_id)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
+
 if __name__ == "__main__":
     app = MainApplication()
-    photo = tk.PhotoImage(file='DHBW_Icon.png')
+    photo = tk.PhotoImage(file="DHBW_Icon.png")
     app.wm_iconphoto(True, photo)
     app.mainloop()
+    logger = logging.getLogger(__name__)
+    logger.info("Application closed")

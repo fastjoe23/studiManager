@@ -43,6 +43,7 @@ class Person:
             (last_name, first_name, email),
         )
         self.conn.commit()
+        
         return self.cursor.lastrowid
 
     def read_all_persons(self):

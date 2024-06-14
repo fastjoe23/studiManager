@@ -18,5 +18,9 @@ config.json
 # Ignoriere alle Datenbank-Files
 *.db
 
+# Ignoriere alle Log-Files
+log/
+*.log
+
 # Ignoriere test_DHBWMail.py im tests-Ordner
 tests/test_dhbwMail.py

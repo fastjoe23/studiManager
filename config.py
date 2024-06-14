@@ -9,6 +9,11 @@ class Config:
         self.version = "0.1"
         self.data_base_name = "studiManagerDatabase.db"
         self.data_base_version = "0.1"
+        # Logging
+        self.log_level = "DEBUG"
+        self.log_format = "%(asctime)s - %(levelname)s - %(module)s -  %(message)s"
+        self.log_file_path = "./logs/"
+        self.log_file_name = "main.log"
         # Werte für Email-Versand aus DB holen
         self.connect_to_database()
         self.smtp_server = self.get_smtp_server()
