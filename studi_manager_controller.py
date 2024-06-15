@@ -1,6 +1,7 @@
 import csv
 import re
 import logging
+import time
 from openpyxl import Workbook, load_workbook
 from presentation_evaluation_pdf import PresentationEvaluationPDF
 from studi_manager_model import LastUsedItems, Person
@@ -177,10 +178,10 @@ class StudentManagerController:
 
     # Methoden für Assigments
     def create_assignment(
-        self, student_id, lecturer_id, assignment_type, topic, grade, date, time
+        self, student_id, lecturer_id, assignment_type, topic, grade, assignment_date, assignment_time
     ):
         return self.model.assignments.create_assignment(
-            student_id, lecturer_id, assignment_type, topic, grade, date, time
+            student_id, lecturer_id, assignment_type, topic, grade, assignment_date, assignment_time
         )
 
     def add_student_to_assignment(self, student_id, assignment_id):
@@ -213,8 +214,8 @@ class StudentManagerController:
         assignment_type,
         topic,
         grade,
-        date,
-        time,
+        assignment_date,
+        assignment_time,
     ):
         return self.model.assignments.update_assignment(
             assignment_id,
@@ -223,8 +224,8 @@ class StudentManagerController:
             assignment_type,
             topic,
             grade,
-            date,
-            time,
+            assignment_date,
+            assignment_time,
         )
 
     def read_assignment_by_id(self, assignment_id):
@@ -363,7 +364,7 @@ class StudentManagerController:
             sheet.cell(row=row_idx, column=5).value = f"{email}@lehre.dhbw-stuttgart.de"
             self.logger.debug("Student %s %s %s geparst.", firstname, lastname, email)
 
-        self.logger.info("Es wurden %s Zeilen erfolgreich geparst", row_idx-1)
+        self.logger.info("Es wurden %s Zeilen erfolgreich geparst", row_idx - 1)
 
         return workbook
 
@@ -429,15 +430,19 @@ class StudentManagerController:
                         last_name_lecturer,
                         first_name_lecturer,
                         grade,
-                        date,
-                        time,
+                        assignment_date,
+                        assignment_time,
                     ) = [value.strip() for value in row]
                     # Studentendaten holen
                     student = self.read_student_by_name(
                         last_name_student, first_name_student
                     )
                     if not student:
-                        self.logger.error("Student: %s %s nicht gefunden", first_name_student, last_name_student)
+                        self.logger.error(
+                            "Student: %s %s nicht gefunden",
+                            first_name_student,
+                            last_name_student,
+                        )
                         raise StudentNotFoundException(
                             f"Student {first_name_student} {last_name_student} nicht gefunden."
                         )
@@ -446,7 +451,11 @@ class StudentManagerController:
                         last_name_lecturer, first_name_lecturer
                     )
                     if not lecturer:
-                        self.logger.error("Dozent: %s %s nicht gefunden", first_name_lecturer, last_name_lecturer)
+                        self.logger.error(
+                            "Dozent: %s %s nicht gefunden",
+                            first_name_lecturer,
+                            last_name_lecturer,
+                        )
                         raise LecturerNotFoundException(
                             f"Gutachter {first_name_lecturer} {last_name_lecturer} nicht gefunden."
                         )
@@ -458,11 +467,15 @@ class StudentManagerController:
                         assignment_type,
                         topic,
                         grade,
-                        date,
-                        time,
+                        assignment_date,
+                        assignment_time,
                     )
                     imported_assignments.append(assignment)
-                    self.logger.debug("Assignment %s für Student Id %s importiert.", assignment_type, student.student_id)
+                    self.logger.debug(
+                        "Assignment %s für Student Id %s importiert.",
+                        assignment_type,
+                        student.student_id,
+                    )
 
             return imported_assignments
         except Exception as e:
@@ -484,15 +497,19 @@ class StudentManagerController:
                 last_name_lecturer = row[4]
                 first_name_lecturer = row[5]
                 grade = row[6]
-                date = row[7]
-                time = row[8]
+                assignment_date = row[7]
+                assignment_time = row[8]
 
                 # Studentendaten holen
                 student = self.read_student_by_name(
                     last_name_student, first_name_student
                 )
                 if not student:
-                    self.logger.error("Student: %s %s nicht gefunden", first_name_student, last_name_student)
+                    self.logger.error(
+                        "Student: %s %s nicht gefunden",
+                        first_name_student,
+                        last_name_student,
+                    )
                     raise StudentNotFoundException(
                         f"Student {first_name_student} {last_name_student} nicht gefunden."
                     )
@@ -501,7 +518,11 @@ class StudentManagerController:
                     last_name_lecturer, first_name_lecturer
                 )
                 if not lecturer:
-                    self.logger.error("Dozent: %s %s nicht gefunden", first_name_lecturer, last_name_lecturer)
+                    self.logger.error(
+                        "Dozent: %s %s nicht gefunden",
+                        first_name_lecturer,
+                        last_name_lecturer,
+                    )
                     raise LecturerNotFoundException(
                         f"Gutachter {first_name_lecturer} {last_name_lecturer} nicht gefunden."
                     )
@@ -513,11 +534,15 @@ class StudentManagerController:
                     assignment_type,
                     topic,
                     grade,
-                    date,
-                    time,
+                    assignment_date,
+                    assignment_time,
                 )
                 imported_assignments.append(assignment)
-                self.logger.debug("Assignment %s für Student Id %s importiert.", assignment_type, student.student_id)
+                self.logger.debug(
+                    "Assignment %s für Student Id %s importiert.",
+                    assignment_type,
+                    student.student_id,
+                )
 
             return imported_assignments
         except Exception as e:
@@ -596,17 +621,39 @@ class StudentManagerController:
         students_list = self.read_all_students_by_course_id(course_id)
 
         result = {"success": True, "error_message": ""}
+        email_counter = 0
         for student in students_list:
             if student.enrolled:
-                self.logger.debug("Sende Mail mit Betreff %s an %s", email_subject, student.email )
+                self.logger.debug(
+                    "Sende Mail mit Betreff %s an %s", email_subject, student.email
+                )
                 result = mail_client.send_email(
                     student.email, subject=email_subject, body=email_text
                 )
                 if result["success"] is False:
-                    self.logger.warning("Fehler beim Mailversand mit Betreff %s an %s", email_subject, student.email )
-                    self.logger.error("Fehler beim Mailverand: %s", result['error_message'])
+                    self.logger.warning(
+                        "Fehler beim Mailversand mit Betreff %s an %s",
+                        email_subject,
+                        student.email,
+                    )
+                    self.logger.error(
+                        "Fehler beim Mailverand: %s", result["error_message"]
+                    )
                     return result
 
+                email_counter += 1
+                self.logger.debug(
+                            "Mail mit Betreff %s an %s (Student %s %s) erfolgreich versendet.",
+                            email_subject,
+                            student.email,
+                            student.first_name,
+                            student.last_name
+                        )
+                # Pause einbauen, damit kein "connection rate limit exceeded" Fehler auftritt
+                time.sleep(10)
+
+        self.logger.info("Es wurden %s Emails erfolgreich versandt.", email_counter)
+        
         return result
 
     def send_mail_to_students_and_lecturers(
@@ -633,7 +680,10 @@ class StudentManagerController:
                     # Gutachter ermitteln
                     lecturer = self.read_lecturer_by_id(assignment.lecturer_id)
                     if not lecturer:
-                        self.logger.error("Gutachter mit der ID %s nicht gefunden.", assignment.lecturer_id)
+                        self.logger.error(
+                            "Gutachter mit der ID %s nicht gefunden.",
+                            assignment.lecturer_id,
+                        )
                         raise LecturerNotFoundException(
                             f"Gutachter {assignment.lecturer_id} nicht gefunden."
                         )
@@ -648,20 +698,39 @@ class StudentManagerController:
 
                     # Ersetze die Platzhalter in der Zeichenkette durch die Variablen
                     formatted_email_text = email_text.format(**variables)
-                    self.logger.debug("Sende Mail mit Betreff %s an %s", email_subject, student.email )
+                    self.logger.debug(
+                        "Sende Mail mit Betreff %s an %s", email_subject, student.email
+                    )
                     result = mail_client.send_email(
                         to_address=student.email,
                         cc_address=lecturer.email,
                         subject=email_subject,
                         body=formatted_email_text,
                     )
+
                     if result["success"] is False:
-                        self.logger.warning("Fehler beim Mailversand mit Betreff %s an %s", email_subject, student.email )
-                        self.logger.error("Fehler beim Mailverand: %s", result['error_message'])                        
+                        self.logger.warning(
+                            "Fehler beim Mailversand mit Betreff %s an %s",
+                            email_subject,
+                            student.email,
+                        )
+                        self.logger.error(
+                            "Fehler beim Mailverand: %s", result["error_message"]
+                        )
                         return result
                     else:
                         email_counter += 1
-                        self.logger.debug("Mail mit Betreff %s an %s erfolgreich versendet.", email_subject, student.email)
+                        self.logger.debug(
+                            "Mail mit Betreff %s an %s (Student %s %s) erfolgreich versendet.",
+                            email_subject,
+                            student.email,
+                            student.first_name,
+                            student.last_name
+                        )
+
+                    # Pause einbauen, damit kein "connection rate limit exceeded" Fehler auftritt
+                    time.sleep(10)
+
         # Ende Schleife ueber alle Studenten
         self.logger.info("Es wurden %s Emails erfolgreich versandt.", email_counter)
         return result
@@ -686,15 +755,18 @@ class StudentManagerController:
                     student.student_id, assignment_type
                 )
                 if assignment:
-                    date = assignment.date
-                    time = assignment.time
+                    assignment_date = assignment.date
+                    assignment_time = assignment.time
                     # Gutachter ermitteln
                     lecturer = self.read_lecturer_by_id(assignment.lecturer_id)
                     lecturer_names = [
                         lecturer.first_name + " " + lecturer.last_name,
                     ]
                     if not lecturer:
-                        self.logger.error("Gutachter mit der ID %s nicht gefunden.", assignment.lecturer_id)
+                        self.logger.error(
+                            "Gutachter mit der ID %s nicht gefunden.",
+                            assignment.lecturer_id,
+                        )
                         raise LecturerNotFoundException(
                             f"Gutachter {assignment.lecturer_id} nicht gefunden."
                         )
@@ -706,15 +778,21 @@ class StudentManagerController:
                         assignment.topic,
                         lecturer_names,
                         student_name,
-                        date,
-                        time,
+                        assignment_date,
+                        assignment_time,
                     )
                     try:
                         pdf_file_path = pdf_file.create_evaluation()
-                        self.logger.debug("Evaluations-PDF mit Thema %sfür Student %s erzeugt.", assignment.topic, student_name)
+                        self.logger.debug(
+                            "Evaluations-PDF mit Thema %sfür Student %s erzeugt.",
+                            assignment.topic,
+                            student_name,
+                        )
                         generated_pdf_files.append(pdf_file_path)
                     except Exception as e:
                         self.logger.error("Error occured: %s", e)
                         raise e
-        self.logger.info("Es wurden %s Evaluationsbögen erzeugt.", len(generated_pdf_files))
+        self.logger.info(
+            "Es wurden %s Evaluationsbögen erzeugt.", len(generated_pdf_files)
+        )
         return generated_pdf_files
