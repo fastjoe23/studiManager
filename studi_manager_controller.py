@@ -1,7 +1,6 @@
 import csv
 import re
 import logging
-import time
 from openpyxl import Workbook, load_workbook
 from presentation_evaluation_pdf import PresentationEvaluationPDF
 from studi_manager_model import LastUsedItems, Person
@@ -620,6 +619,15 @@ class StudentManagerController:
         # alle Studenten aus dem Kurs lesen
         students_list = self.read_all_students_by_course_id(course_id)
 
+        # Login Email Server
+        try:
+            mail_client.login()
+            self.logger.debug("Erfolgreicher Login in Mail-Server")
+        except Exception as e:
+            self.logger.error("Error occurred: %s", e)
+            result = {"success": False, "error_message": e}
+            return result
+
         result = {"success": True, "error_message": ""}
         email_counter = 0
         for student in students_list:
@@ -627,7 +635,7 @@ class StudentManagerController:
                 self.logger.debug(
                     "Sende Mail mit Betreff %s an %s", email_subject, student.email
                 )
-                result = mail_client.send_email(
+                result = mail_client.send_email_without_login(
                     student.email, subject=email_subject, body=email_text
                 )
                 if result["success"] is False:
@@ -649,11 +657,9 @@ class StudentManagerController:
                             student.first_name,
                             student.last_name
                         )
-                # Pause einbauen, damit kein "connection rate limit exceeded" Fehler auftritt
-                time.sleep(10)
 
+        mail_client.logout()
         self.logger.info("Es wurden %s Emails erfolgreich versandt.", email_counter)
-        
         return result
 
     def send_mail_to_students_and_lecturers(
@@ -666,6 +672,15 @@ class StudentManagerController:
         mail_client = DHBWMail()
         # alle Studenten aus dem Kurs lesen
         students_list = self.read_all_students_by_course_id(course_id)
+
+        # Login Email Server
+        try:
+            mail_client.login()
+            self.logger.debug("Erfolgreicher Login in Mail-Server")
+        except Exception as e:
+            self.logger.error("Error occurred: %s", e)
+            result = {"success": False, "error_message": e}
+            return result
 
         result = {"success": True, "error_message": ""}
         # Schleife ueber alle Studenten im Kurs
@@ -701,7 +716,7 @@ class StudentManagerController:
                     self.logger.debug(
                         "Sende Mail mit Betreff %s an %s", email_subject, student.email
                     )
-                    result = mail_client.send_email(
+                    result = mail_client.send_email_without_login(
                         to_address=student.email,
                         cc_address=lecturer.email,
                         subject=email_subject,
@@ -727,11 +742,9 @@ class StudentManagerController:
                             student.first_name,
                             student.last_name
                         )
-
-                    # Pause einbauen, damit kein "connection rate limit exceeded" Fehler auftritt
-                    time.sleep(10)
-
         # Ende Schleife ueber alle Studenten
+
+        mail_client.logout()
         self.logger.info("Es wurden %s Emails erfolgreich versandt.", email_counter)
         return result
 
