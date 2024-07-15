@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime
 import re
 import logging
 from openpyxl import Workbook, load_workbook
@@ -749,7 +750,7 @@ class StudentManagerController:
         return result
 
     # PDF Generierung Methoden
-    def generated_evaluation_pdfs(self, save_path, assignment_type, course_id):
+    def generate_evaluation_pdfs(self, save_path, assignment_type, course_id):
         # erzeugt für alle Assignments zum gewählten Type des Kurses ein Begutachtungsformular im Order save_path
 
         # Kursdaten ermitteln
@@ -768,7 +769,7 @@ class StudentManagerController:
                     student.student_id, assignment_type
                 )
                 if assignment:
-                    assignment_date = assignment.date
+                    assignment_date = datetime.strptime(assignment.date, "%Y-%m-%d %H:%M:%S").strftime("%d.%m.%Y")
                     assignment_time = assignment.time
                     # Gutachter ermitteln
                     lecturer = self.read_lecturer_by_id(assignment.lecturer_id)
