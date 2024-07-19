@@ -40,25 +40,18 @@ class PresentationEvaluationPDF(FPDF):
         else:
             abbrevation_type = self.evaluation_type
 
-        title = f"Bewertung mündliche {abbrevation_type}-Prüfung"
-        self.cell(
-            w=0, h=10, text=title, border=0, new_x=XPos.LEFT, new_y=YPos.NEXT, align="C"
+        title = (
+            f"Bewertung mündliche {abbrevation_type}-Prüfung Kurs {self.course_name}"
         )
         self.cell(
-            w=0,
-            h=10,
-            text=f"Kurs {self.course_name}",
-            border=0,
-            new_x=XPos.LEFT,
-            new_y=YPos.NEXT,
-            align="C",
+            w=0, h=10, text=title, border=0, new_x=XPos.LEFT, new_y=YPos.NEXT, align="C"
         )
 
     def chapter_title(self, title):
         self.set_font("helvetica", "B", 12)
         max_width = 180  # Maximale Breite der Zelle
         self.multi_cell(
-            w=max_width, h=10, text=title, border=0, align="L", new_x=XPos.LEFT
+            w=max_width, h=6, text=title, border=0, align="L", new_x=XPos.LEFT
         )
         self.set_font("helvetica", "", 12)
 
@@ -73,11 +66,15 @@ class PresentationEvaluationPDF(FPDF):
                 f"Gutachter*in: {', '.join(str(x) for x in self.lecturers)} "
             )
             self.ln(3)
+            self.cell(text="Gesund/Prüfungsfähig:  O  Ja     O Nein", new_x=XPos.LEFT, new_y=YPos.NEXT)
+            self.ln(3)
             self.chapter_title("(A) Präsentation")
 
             self.set_font("helvetica", "", 11)
             with self.table(
-                col_widths=(60, 60, 50, 60), borders_layout="NONE"
+                col_widths=(60, 60, 50, 60), 
+                borders_layout="NONE", 
+                line_height=6
             ) as table:
                 row = table.row()
                 row.cell("Vortragsstil", colspan=4)
@@ -113,6 +110,7 @@ class PresentationEvaluationPDF(FPDF):
             with self.table(
                 col_widths=(60, 60, 50, 60),
                 borders_layout="NONE",
+                line_height=6,
                 first_row_as_headings=False,
             ) as table:
                 row = table.row()
@@ -124,13 +122,15 @@ class PresentationEvaluationPDF(FPDF):
             self.ln(5)
             self.chapter_title("(C) Allgemeine Anmerkungen:")
             self.cell(text="-")
-            self.ln(10)
+            self.ln(8)
             self.cell(text="-")
-            self.ln(30)
+            self.ln(8)
+            self.cell(text="-")
+            self.ln(95)
             self.chapter_title("(D) Note:")
             self.ln()
             self.cell(text="Unterschriften:", align="L")
-            
+
             pdf_file_path = (
                 self.save_path
                 + f"/{str(self.course_name)}_{str(self.evaluation_type).replace(' ','')}_{str(self.student_name).replace(' ','')}_Bewertungsbogen.pdf"

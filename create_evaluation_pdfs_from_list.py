@@ -7,9 +7,9 @@ from config import Config
 from presentation_evaluation_pdf import PresentationEvaluationPDF
 
 # Input-Datei festlegen
-INPUT_FILE = " "
-SAVE_PATH = " "
-COURSE_NAME = " "
+INPUT_FILE = "./tests/create_evaluation_pdfs.xlsx"
+SAVE_PATH = "./tests/"
+COURSE_NAME = "WWITest"
 
 
 
