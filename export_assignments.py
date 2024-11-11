@@ -61,11 +61,12 @@ for student in students_list:
             ws.cell(row=row_idx, column=1).value = assignment_type
             ws.cell(row=row_idx, column=2).value = student.last_name
             ws.cell(row=row_idx, column=3).value = student.first_name
-            ws.cell(row=row_idx, column=4).value = lecturer.last_name
-            ws.cell(row=row_idx, column=5).value = lecturer.first_name
-            ws.cell(row=row_idx, column=6).value = student.email
-            ws.cell(row=row_idx, column=7).value = lecturer.email
-            ws.cell(row=row_idx, column=8).value = formatted_email_text
+            ws.cell(row=row_idx, column=4).value = assignment.topic
+            ws.cell(row=row_idx, column=5).value = lecturer.last_name
+            ws.cell(row=row_idx, column=6).value = lecturer.first_name
+            ws.cell(row=row_idx, column=7).value = student.email
+            ws.cell(row=row_idx, column=8).value = lecturer.email
+            ws.cell(row=row_idx, column=9).value = formatted_email_text
 
             # Row Index erhöhen
             row_idx += 1
