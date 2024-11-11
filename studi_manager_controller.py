@@ -769,8 +769,14 @@ class StudentManagerController:
                     student.student_id, assignment_type
                 )
                 if assignment:
-                    assignment_date = datetime.strptime(assignment.date, "%Y-%m-%d %H:%M:%S").strftime("%d.%m.%Y")
-                    assignment_time = assignment.time
+                    if assignment.date:
+                        assignment_date = datetime.strptime(assignment.date, "%Y-%m-%d %H:%M:%S").strftime("%d.%m.%Y")
+                    else:
+                        assignment_date = "  .  .        "
+                    if assignment.time:
+                        assignment_time = assignment.time
+                    else:
+                        assignment_time = "  :    -   :   "
                     # Gutachter ermitteln
                     lecturer = self.read_lecturer_by_id(assignment.lecturer_id)
                     lecturer_names = [
