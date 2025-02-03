@@ -584,12 +584,42 @@ class StudentManagerController:
         row_idx = 2
         for student in students_list:
             if student.enrolled:
-                # Schreibe Werte des Studenten in die entsprechende Zeile
+                # Assignment ermitteln
+                assignment = self.read_assignment_by_student_id_and_type(
+                    student.student_id, assignment_type
+                )
+                if assignment:
+                    if assignment.date:
+                        assignment_date = datetime.strptime(assignment.date, "%Y-%m-%d %H:%M:%S").strftime("%d.%m.%Y")
+                    else:
+                        assignment_date = " "
+                    if assignment.time:
+                        assignment_time = assignment.time
+                    else:
+                        assignment_time = " "
+                    # Gutachter ermitteln
+                    lecturer = self.read_lecturer_by_id(assignment.lecturer_id)
+                    if not lecturer:
+                        self.logger.error(
+                            "Gutachter mit der ID %s nicht gefunden.",
+                            assignment.lecturer_id,
+                        )
+                        raise LecturerNotFoundException(
+                            f"Gutachter {assignment.lecturer_id} nicht gefunden."
+                        )
+
+                # Schreibe Werte in die entsprechende Zeile
                 ws.cell(row=row_idx, column=1).value = assignment_type
                 ws.cell(row=row_idx, column=2).value = student.last_name
                 ws.cell(row=row_idx, column=3).value = student.first_name
+                if assignment:
+                    ws.cell(row=row_idx, column=4).value = assignment.topic
+                    ws.cell(row=row_idx, column=5).value = lecturer.last_name
+                    ws.cell(row=row_idx, column=6).value = lecturer.first_name
+                    ws.cell(row=row_idx, column=8).value = assignment_date
+                    ws.cell(row=row_idx, column=9).value = assignment_time
                 row_idx += 1
-
+        self.logger.info("Es wurden %s Assignments in die Liste geschrieben.", row_idx - 1)
         return wb
 
     # Mail Methoden
