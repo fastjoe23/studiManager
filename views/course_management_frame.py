@@ -150,6 +150,10 @@ class CourseManagementFrame(tk.Frame):
             ),
         )
 
+        # Label für die Statistik
+        self.status_label = tk.Label(students_frame, text="Aktiv 0 / Exma 0", font=("Arial", 10))
+        self.status_label.pack(pady=5)
+
         # Unterer Teil für Notizen
         notes_frame = tk.Frame(right_frame)
         notes_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, padx=10, pady=10)
@@ -311,7 +315,10 @@ class CourseManagementFrame(tk.Frame):
         enrolled_students = self.master.controller.read_all_students_by_course_id(
             course_id
         )
-
+        # Zähler für eingeschriebene und exmatrikulierte Studenten
+        enrolled_count = 0
+        exmatriculated_count = 0
+        
         # Lösche die Tabelle
         for row in self.tree.get_children():
             self.tree.delete(row)
@@ -330,6 +337,14 @@ class CourseManagementFrame(tk.Frame):
                 ),
                 tags=student_enrolled_tag
             )
+            # Zähler aktualisieren
+            if student.enrolled:
+                enrolled_count += 1
+            else:
+                exmatriculated_count += 1
+
+        # Label aktualisieren
+        self.status_label.config(text=f"Aktiv {enrolled_count} / Exma {exmatriculated_count}")
 
     def load_course_notes(self, course_id):
         list_of_notes = self.master.controller.read_notes_by_type_and_related_id(
