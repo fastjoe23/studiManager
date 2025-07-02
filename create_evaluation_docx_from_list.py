@@ -7,9 +7,10 @@ from config import Config
 from presentation_evaluation_word import PresentationEvaluationDocx
 
 # Input-Datei festlegen
-INPUT_FILE = "./tests/create_evaluation_pdfs.xlsx"
-SAVE_PATH = "C:/Users/Offtermatt/Downloads"
-COURSE_NAME = "WWI2023V"
+INPUT_FILE = "./tests/create_evaluation_projekt2025.xlsx"
+SAVE_PATH = "C:/Users/Offtermatt/Downloads/EvaluationSheets"
+COURSE_NAME = "WWI2022V"
+SIGNATURE = False  # Unterschrift hinzufügen oder nicht
 
 
 
@@ -49,6 +50,7 @@ for row in ws.iter_rows(min_row=2, values_only=True):
     name_of_students,
     assignment_date.strftime("%d.%m.%Y"),
     assignment_time,
+    SIGNATURE 
     )
     try:
         pdf_file_path = word_file.create_evaluation()

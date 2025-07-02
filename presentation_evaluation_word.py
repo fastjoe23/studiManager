@@ -18,6 +18,7 @@ class PresentationEvaluationDocx:
         student,
         date,
         time,
+        signature = False
     ):
         self.save_path = save_path
         self.topic = topic
@@ -27,6 +28,7 @@ class PresentationEvaluationDocx:
         self.evaluation_type = evaluation_type
         self.date = date
         self.time = time
+        self.signature = signature
 
     def create_evaluation(self):
         try:
@@ -136,14 +138,15 @@ class PresentationEvaluationDocx:
             run = paragraph.add_run("Unterschriften:  ")
             run.font.size = Pt(12)
             run.bold = True
-            paragraph.add_run().add_picture(
-                "C:/Users/Offtermatt/OneDrive - Duale Hochschule Baden-Württemberg Stuttgart/Dokumente/Verwaltung/Unterschrift.jpg",
-                width=Cm(3),
-            )
-            paragraph.add_run().add_picture(
-                "C:/Users/Offtermatt/OneDrive - Duale Hochschule Baden-Württemberg Stuttgart/Dokumente/Verwaltung/TK.jpg",
-                width=Cm(3),
-            )
+            if self.signature:
+                paragraph.add_run().add_picture(
+                    "C:/Users/Offtermatt/OneDrive - Duale Hochschule Baden-Württemberg Stuttgart/Dokumente/Verwaltung/Unterschrift.jpg",
+                    width=Cm(3),
+                )
+                paragraph.add_run().add_picture(
+                    "C:/Users/Offtermatt/OneDrive - Duale Hochschule Baden-Württemberg Stuttgart/Dokumente/Verwaltung/TK.jpg",
+                    width=Cm(3),
+                )
 
             doc_file_path = (
                 self.save_path
