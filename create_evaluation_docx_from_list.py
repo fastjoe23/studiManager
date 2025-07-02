@@ -13,7 +13,6 @@ COURSE_NAME = "WWI2022V"
 SIGNATURE = False  # Unterschrift hinzufügen oder nicht
 
 
-
 # Konfigurationsdaten holen
 configs = Config()
 # Logger initialisieren
@@ -27,7 +26,7 @@ logging.basicConfig(
 logger.info("Erzeugung Bewertungsbögen gestartet")
 try:
     workbook = load_workbook(INPUT_FILE)
-    logger.info("Eingabe-Datei erfolgreich gelesen:%s",  INPUT_FILE)
+    logger.info("Eingabe-Datei erfolgreich gelesen:%s", INPUT_FILE)
 except InvalidFileException:
     logger.error("Eingabedatei nicht gefunden: %s", INPUT_FILE)
     raise
@@ -42,15 +41,15 @@ for row in ws.iter_rows(min_row=2, values_only=True):
     assignment_time = row[4]
     logger.info("Erzeuge Word für %s mit Thema %s", name_of_students, topic)
     word_file = PresentationEvaluationDocx(
-    SAVE_PATH,
-    assignment_type,
-    COURSE_NAME,
-    topic,
-    [],
-    name_of_students,
-    assignment_date.strftime("%d.%m.%Y"),
-    assignment_time,
-    SIGNATURE 
+        SAVE_PATH,
+        assignment_type,
+        COURSE_NAME,
+        topic,
+        [],
+        name_of_students,
+        assignment_date.strftime("%d.%m.%Y"),
+        assignment_time,
+        SIGNATURE,
     )
     try:
         pdf_file_path = word_file.create_evaluation()
