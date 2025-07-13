@@ -519,7 +519,7 @@ class StudentManagerController:
                 )
                 if not lecturer:
                     self.logger.error(
-                        "Dozent: %s %s nicht gefunden",
+                        "Dozent: '%s' '%s' nicht gefunden",
                         first_name_lecturer,
                         last_name_lecturer,
                     )
@@ -548,6 +548,9 @@ class StudentManagerController:
         except Exception as e:
             self.logger.error("Error occurred: %s", e)
             raise e
+        finally:
+            if wb is not None:
+                wb.close()
 
     def generate_assignment_list(self, assignment_type, course_id):
         # generiert eine Liste mit allen Studenten eines Kurses um eine Übersicht
