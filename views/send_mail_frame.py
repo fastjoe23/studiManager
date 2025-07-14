@@ -61,13 +61,16 @@ class SendMailWindow(tk.Toplevel):
         else: #type = Freitext
             result =self.master.master.controller.send_mail_to_students(e_mail_subject, e_mailtext, course_id)
 
-        if result['success'] == False:
+        if result['success'] is False:
             if result['error_message'].startswith("(535"):
                 # Fehler Authentification failed, eventuell ist das Passwort abgelaufen
                 messagebox.showerror("Fehler beim Mailversand", "Anmeldeinformationen ungültig. Ungültiger Benutzername oder falsches Passwort. Ist Ihr Passwort abgelaufen? " + result['error_message'])
             else:
                 # Zeige eine Messagebox mit dem Inhalt der Exception an
                 messagebox.showerror("Fehler beim Mailversand", result['error_message'])
-        
+        else:
+            # Zeige eine Messagebox an, dass die Email erfolgreich versendet wurde
+            messagebox.showinfo("Erfolg", f"Es wurden {result['sent_count']} Emails erfolgreich versendet.")
+
         # Email-Versand-Fenster schließen
         self.destroy()

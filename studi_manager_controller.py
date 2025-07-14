@@ -653,37 +653,43 @@ class StudentManagerController:
         # alle Studenten aus dem Kurs lesen
         students_list = self.read_all_students_by_course_id(course_id)
 
+        result = {"success": True, "error_message": "", "sent_count": 0}
+        
         # Login Email Server
         try:
             mail_client.login()
             self.logger.debug("Erfolgreicher Login in Mail-Server")
         except Exception as e:
             self.logger.error("Error occurred: %s", e)
-            result = {"success": False, "error_message": e}
+            result["success"] = False
+            result["error_message"] = str(e)
             return result
 
-        result = {"success": True, "error_message": ""}
-        email_counter = 0
+        
+        
         for student in students_list:
             if student.enrolled:
                 self.logger.debug(
                     "Sende Mail mit Betreff %s an %s", email_subject, student.email
                 )
-                result = mail_client.send_email_without_login(
+                send_result = mail_client.send_email_without_login(
                     student.email, subject=email_subject, body=email_text
                 )
-                if result["success"] is False:
+                if send_result["success"] is False:
                     self.logger.warning(
                         "Fehler beim Mailversand mit Betreff %s an %s",
                         email_subject,
                         student.email,
                     )
                     self.logger.error(
-                        "Fehler beim Mailverand: %s", result["error_message"]
+                        "Fehler beim Mailverand: %s", send_result["error_message"]
                     )
+                    # uebergabe an result 
+                    result["success"] = False
+                    result["error_message"] = send_result["error_message"]  
                     return result
 
-                email_counter += 1
+                result["sent_count"] += 1
                 self.logger.debug(
                             "Mail mit Betreff %s an %s (Student %s %s) erfolgreich versendet.",
                             email_subject,
@@ -693,7 +699,8 @@ class StudentManagerController:
                         )
 
         mail_client.logout()
-        self.logger.info("Es wurden %s Emails erfolgreich versandt.", email_counter)
+        self.logger.info("Es wurden %s Emails erfolgreich versandt.", result["sent_count"])
+
         return result
 
     def send_mail_to_students_and_lecturers(
@@ -707,18 +714,20 @@ class StudentManagerController:
         # alle Studenten aus dem Kurs lesen
         students_list = self.read_all_students_by_course_id(course_id)
 
+        result = {"success": True, "error_message": "", "sent_count": 0}
         # Login Email Server
         try:
             mail_client.login()
             self.logger.debug("Erfolgreicher Login in Mail-Server")
         except Exception as e:
             self.logger.error("Error occurred: %s", e)
-            result = {"success": False, "error_message": e}
+            result["success"] = False
+            result["error_message"] = str(e)
             return result
 
-        result = {"success": True, "error_message": ""}
+        
         # Schleife ueber alle Studenten im Kurs
-        email_counter = 0
+
         for student in students_list:
             if student.enrolled:
                 # Assignment ermitteln
@@ -750,25 +759,27 @@ class StudentManagerController:
                     self.logger.debug(
                         "Sende Mail mit Betreff %s an %s", email_subject, student.email
                     )
-                    result = mail_client.send_email_without_login(
+                    send_result = mail_client.send_email_without_login(
                         to_address=student.email,
                         cc_address=lecturer.email,
                         subject=email_subject,
                         body=formatted_email_text,
                     )
 
-                    if result["success"] is False:
+                    if send_result["success"] is False:
                         self.logger.warning(
                             "Fehler beim Mailversand mit Betreff %s an %s",
                             email_subject,
                             student.email,
                         )
                         self.logger.error(
-                            "Fehler beim Mailverand: %s", result["error_message"]
+                            "Fehler beim Mailverand: %s", send_result["error_message"]
                         )
+                        result["success"] = False
+                        result["error_message"] = send_result["error_message"]
                         return result
                     else:
-                        email_counter += 1
+                        result["sent_count"] += 1
                         self.logger.debug(
                             "Mail mit Betreff %s an %s (Student %s %s) erfolgreich versendet.",
                             email_subject,
@@ -779,7 +790,7 @@ class StudentManagerController:
         # Ende Schleife ueber alle Studenten
 
         mail_client.logout()
-        self.logger.info("Es wurden %s Emails erfolgreich versandt.", email_counter)
+        self.logger.info("Es wurden %s Emails erfolgreich versandt.", result["sent_count"])
         return result
 
     # PDF Generierung Methoden
