@@ -11,13 +11,14 @@ class LecturersFrame(tk.Frame):
         self.title_label = tk.Label(self, text= "Verwaltung Dozenten / Gutachter", font=('Arial', 14, 'bold'))
         self.title_label.pack()
         # Tabelle für die Anzeige der Dozenten erstellen
-        self.tree = ttk.Treeview(self, columns=("ID", "Vorname", "Nachname", "E-Mail", "Firma", "Erstelldatum"), show="headings")
+        self.tree = ttk.Treeview(self, columns=("ID", "Vorname", "Nachname", "E-Mail", "Firma", "Gutachter", "Erstelldatum"), show="headings")
         self.tree.heading("ID", text="ID", command=lambda: self.sort_column("ID"))
         self.tree.column("ID", width=30)
         self.tree.heading("Vorname", text="Vorname", command=lambda: self.sort_column("Vorname"))
         self.tree.heading("Nachname", text="Nachname", command=lambda: self.sort_column("Nachname"))
         self.tree.heading("E-Mail", text="E-Mail", command=lambda: self.sort_column("E-Mail"))
         self.tree.heading("Firma", text="Firma", command=lambda: self.sort_column("Firma"))
+        self.tree.heading("Gutachter", text="Gutachter")
         self.tree.heading("Erstelldatum", text="Erstelldatum", command=lambda: self.sort_column("Erstelldatum"))
 
         # Querer Scrollbar hinzufügen
@@ -142,7 +143,7 @@ class LecturersFrame(tk.Frame):
         # Schalter um ersten Eintrag zu speichern und später sichtbar zu schalten
         first_itemfound = False
         first_item = self.tree.get_children()[0]
-        
+
         if search_query:
         # Durchsuche alle Zeilen im Treeview
             for item in self.tree.get_children():
@@ -166,4 +167,10 @@ class LecturersFrame(tk.Frame):
             self.tree.delete(row)
 
         for lecturer in lecturers:
-            self.tree.insert("", tk.END, values=(lecturer.lecturer_id, lecturer.first_name, lecturer.last_name, lecturer.email, lecturer.company, lecturer.creation_date))
+            self.tree.insert("", tk.END, values=(lecturer.lecturer_id,
+                                                 lecturer.first_name,
+                                                 lecturer.last_name,
+                                                 lecturer.email,
+                                                 lecturer.company,
+                                                 "Ja" if lecturer.is_reviewer else "Nein",
+                                                 lecturer.creation_date))

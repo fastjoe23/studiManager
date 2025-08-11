@@ -43,7 +43,7 @@ class Person:
             (last_name, first_name, email),
         )
         self.conn.commit()
-        
+
         return self.cursor.lastrowid
 
     def read_all_persons(self):
@@ -361,14 +361,16 @@ class Lecturer(Person):
         super().__init__()
         self.lecturer_id = None
         self.company = None
+        self.is_reviewer = False
         self.connect_to_database()
 
-    def create_lecturer(self, last_name, first_name, email, company):
+    def create_lecturer(self, last_name, first_name, email, company, is_reviewer=False):
         new_lecturer = Lecturer()
         new_lecturer.first_name = first_name
         new_lecturer.last_name = last_name
         new_lecturer.email = email
         new_lecturer.company = company
+        new_lecturer.is_reviewer = is_reviewer
 
         # Erstelle eine neue Person
         lecturer_person = self.create_person(last_name, first_name, email)
@@ -376,19 +378,19 @@ class Lecturer(Person):
 
         # Schreibe Dozenten in die Dozentendatenbank
         new_lecturer.lecturer_id = self.write_lecturer_to_db(
-            lecturer_person.person_id, company
+            lecturer_person.person_id, company, is_reviewer
         )
 
         return new_lecturer
 
-    def write_lecturer_to_db(self, person_id, company):
+    def write_lecturer_to_db(self, person_id, company, is_reviewer):
         # Füge den Dozenten hinzu
         self.cursor.execute(
             """
-            INSERT INTO lecturers (person_id, company)
-            VALUES (?, ?)
+            INSERT INTO lecturers (person_id, company, is_reviewer)
+            VALUES (?, ?, ?)
         """,
-            (person_id, company),
+            (person_id, company, int(is_reviewer)),
         )
         self.conn.commit()
 
@@ -408,6 +410,7 @@ class Lecturer(Person):
             new_lecturer.lecturer_id = row[4]
             new_lecturer.company = row[5]
             new_lecturer.creation_date = row[6]
+            new_lecturer.is_reviewer = bool(row[7])
             lecturers_list.append(new_lecturer)
 
         return lecturers_list
@@ -420,8 +423,10 @@ class Lecturer(Person):
                       persons.eMail,
                       lecturers.lecturer_id,
                       lecturers.company,
-                      lecturers.creation_date FROM persons
-                      JOIN lecturers ON persons.person_id = lecturers.person_id
+                      lecturers.creation_date,
+                      lecturers.is_reviewer
+                FROM persons
+                JOIN lecturers ON persons.person_id = lecturers.person_id
         ''')
         return self.cursor.fetchall()
 
@@ -434,6 +439,8 @@ class Lecturer(Person):
             lecturer.lecturer_id = lecturer_dbdump[0]
             lecturer.person_id = lecturer_dbdump[1]
             lecturer.company = lecturer_dbdump[2]
+            # dbdump[3] is creation_date
+            lecturer.is_reviewer = bool(lecturer_dbdump[4])
 
             # Personendaten ergänzen
             lecturer_person = self.read_person_by_id(lecturer.person_id)
@@ -461,6 +468,8 @@ class Lecturer(Person):
             lecturer.lecturer_id = lecturer_dbdump[0]
             lecturer.person_id = lecturer_dbdump[1]
             lecturer.company = lecturer_dbdump[2]
+            # dbdump[3] is creation_date
+            lecturer.is_reviewer = bool(lecturer_dbdump[4])
 
             # Personendaten ergänzen
             lecturer_person = self.read_person_by_id(lecturer.person_id)
@@ -495,6 +504,7 @@ class Lecturer(Person):
         new_first_name,
         new_email,
         new_company,
+        is_reviewer,
     ):
         self.update_person(person_id, new_last_name, new_first_name, new_email)
 
@@ -502,10 +512,11 @@ class Lecturer(Person):
         self.cursor.execute(
             """
             UPDATE lecturers
-            SET company = ?
+            SET company = ?,
+                is_reviewer = ?
             WHERE lecturer_id = ?
         """,
-            (new_company, lecturer_id),
+            (new_company, int(is_reviewer), lecturer_id),
         )
         self.conn.commit()
 

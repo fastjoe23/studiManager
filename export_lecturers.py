@@ -26,7 +26,7 @@ logger.debug("Create Workbook")
 wb = Workbook()
 ws = wb.active
 ws.title = "Dozenten Export"
-titles = "Nachname Dozent, Vorname Dozent, Email Dozent, Dozenten-ID, Personen-ID, Firma".split(
+titles = "Nachname Dozent, Vorname Dozent, Email Dozent, Dozenten-ID, Personen-ID, Firma, Ist Gutachter".split(
     ", "
 )
 for col, title in enumerate(titles, start=1):
@@ -44,12 +44,13 @@ for lecturer in lecturers:
     ws.cell(row=row_idx, column=4).value = lecturer.lecturer_id
     ws.cell(row=row_idx, column=5).value = lecturer.person_id
     ws.cell(row=row_idx, column=6).value = lecturer.company
+    ws.cell(row=row_idx, column=7).value = lecturer.is_reviewer
     # Row Index erhöhen
     row_idx += 1
 
 logger.debug("Ausgabedatei schreiben")
-file_name = "Dozenten.xlsx"
-save_path = "."
-save_file_path = save_path + "/" + file_name
+FILE_NAME = "Dozenten.xlsx"
+SAVE_PATH = "."
+save_file_path = SAVE_PATH + "/" + FILE_NAME
 wb.save(save_file_path)
 logger.info("Es wurden %s Gutacher exportiert", row_idx - 1)

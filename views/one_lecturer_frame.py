@@ -27,6 +27,9 @@ class OneLecturerWindow(tk.Toplevel):
 
         self.company_label = tk.Label(personal_frame, text="Firma:")
         self.company_entry = tk.Entry(personal_frame, width=30)
+        self.is_reviewer_label = tk.Label(personal_frame, text="Gutachter:")
+        self.is_reviewer_var = tk.BooleanVar()
+        self.is_reviewer_check = tk.Checkbutton(personal_frame, variable=self.is_reviewer_var)
 
         self.first_name_label.grid(row=0, column=0, pady=5, sticky=tk.E)
         self.first_name_entry.grid(row=0, column=1, pady=5, padx=5)
@@ -36,6 +39,8 @@ class OneLecturerWindow(tk.Toplevel):
         self.email_entry.grid(row=2, column=1, pady=5, padx=5)
         self.company_label.grid(row=3, column=0, pady=5, sticky=tk.E)
         self.company_entry.grid(row=3, column=1, pady=5, padx=5)
+        self.is_reviewer_label.grid(row=4, column=0, pady=5, sticky=tk.E)
+        self.is_reviewer_check.grid(row=4, column=1, pady=5, padx=5, sticky=tk.W)
 
         # Notizfeld
         notes_frame = tk.Frame(input_frame)
@@ -65,6 +70,7 @@ class OneLecturerWindow(tk.Toplevel):
             self.last_name_entry.insert(0, lecturer.last_name)
             self.email_entry.insert(0, lecturer.email)
             self.company_entry.insert(0, lecturer.company)
+            self.is_reviewer_var.set(lecturer.is_reviewer)
 
             # Notizfeld befüllen, falls vorhanden
             self.load_lecturer_notes(lecturer.lecturer_id)
@@ -140,13 +146,14 @@ class OneLecturerWindow(tk.Toplevel):
             last_name = self.last_name_entry.get()
             email = self.email_entry.get()
             company = self.company_entry.get()
+            is_reviewer = self.is_reviewer_var.get()
 
             if lecturer:
                 # Dozent bearbeiten, wenn vorhanden
-                parent.controller.update_lecturer(lecturer.lecturer_id, lecturer.person_id, last_name, first_name, email, company)
+                parent.controller.update_lecturer(lecturer.lecturer_id, lecturer.person_id, last_name, first_name, email, company, is_reviewer)
             else:
                 # Neuen Dozenten hinzufügen
-                new_lecturer = parent.controller.add_lecturer(last_name, first_name, email, company)
+                new_lecturer = parent.controller.add_lecturer(last_name, first_name, email, company, is_reviewer)
 
             # Fenster nach dem Hinzufügen oder Bearbeiten schließen
             self.destroy()
@@ -222,7 +229,3 @@ class OneLecturerWindow(tk.Toplevel):
 
             #Zeile fuellen 
             self.tree.insert("", tk.END, values=(assignment.assignment_id, assignment.type, student.first_name, student.last_name))
-
-
-        
-

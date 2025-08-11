@@ -6,7 +6,7 @@ class ConfirmationDialogDeleteLecturer(tk.Toplevel):
         tk.Toplevel.__init__(self, parent, *args, **kwargs)
         self.title("Bestätigung")
 
-        self.label = tk.Label(self, text=f"Möchten Sie den Dozent löschen:")
+        self.label = tk.Label(self, text="Möchten Sie den Dozent löschen:")
         self.label.pack(pady=10)
         # Anzeige der Dozentendaten
         # Erstelle ein Label_frame für eine bessere Anzeige
@@ -19,8 +19,10 @@ class ConfirmationDialogDeleteLecturer(tk.Toplevel):
         tk.Label(label_frame, text=f"Nachname: {lecturer.last_name}").pack(anchor="w")
         tk.Label(label_frame, text=f"E-Mail: {lecturer.email}").pack(anchor="w")
         tk.Label(label_frame, text=f"Firma: {lecturer.company}").pack(anchor="w")
-        
-        self.label = tk.Label(self, text=f"wirklich löschen?")
+        tk.Label(label_frame, text=f"Gutachter: {'Ja' if lecturer.is_reviewer else 'Nein'}").pack(anchor="w")
+
+
+        self.label = tk.Label(self, text="wirklich löschen?")
         self.label.pack(pady=10)
 
         # Frame für die Buttons erstellen

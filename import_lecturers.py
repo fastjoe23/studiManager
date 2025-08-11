@@ -16,11 +16,12 @@ for row in ws.iter_rows(min_row=2, values_only=True):
     lastname = row[1]
     email = row[2]
     company = row[3] if row[3] else ""
-    print(f"Importiere {firstname} {lastname} {email} {company}")
+    is_reviewer = bool(row[4]) if row[4] else False
+    print(f"Importiere {firstname} {lastname} {email} {company} {is_reviewer}")
     try:
-        lecturer = controller.add_lecturer(lastname, firstname, email, company)
+        lecturer = controller.add_lecturer(lastname, firstname, email, company, is_reviewer)
         imported_lecturers.append(lecturer)
     except Exception as e:
         raise e
-    
+
 print(f"Es wurden {len(imported_lecturers)} erfolgreich importiert.")

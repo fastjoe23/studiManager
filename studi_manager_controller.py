@@ -101,12 +101,12 @@ class StudentManagerController:
         return self.model.student.read_all_students_by_course_id(course_id)
 
     # Methoden für Lecturer
-    def add_lecturer(self, last_name, first_name, email, company):
+    def add_lecturer(self, last_name, first_name, email, company, is_reviewer=False):
         if email:
             self.check_valid_mail(email)
 
         new_lecturer = self.model.lecturer.create_lecturer(
-            last_name, first_name, email, company
+            last_name, first_name, email, company, is_reviewer
         )
         return new_lecturer
 
@@ -114,10 +114,10 @@ class StudentManagerController:
         return self.model.lecturer.delete_lecturer(lecturer_id)
 
     def update_lecturer(
-        self, lecturer_id, person_id, last_name, first_name, email, company
+        self, lecturer_id, person_id, last_name, first_name, email, company, is_reviewer
     ):
         return self.model.lecturer.update_lecturer(
-            lecturer_id, person_id, last_name, first_name, email, company
+            lecturer_id, person_id, last_name, first_name, email, company, is_reviewer
         )
 
     def read_lecturer_by_id(self, lecturer_id):
@@ -654,7 +654,7 @@ class StudentManagerController:
         students_list = self.read_all_students_by_course_id(course_id)
 
         result = {"success": True, "error_message": "", "sent_count": 0}
-        
+
         # Login Email Server
         try:
             mail_client.login()
@@ -665,8 +665,6 @@ class StudentManagerController:
             result["error_message"] = str(e)
             return result
 
-        
-        
         for student in students_list:
             if student.enrolled:
                 self.logger.debug(
@@ -684,9 +682,9 @@ class StudentManagerController:
                     self.logger.error(
                         "Fehler beim Mailverand: %s", send_result["error_message"]
                     )
-                    # uebergabe an result 
+                    # uebergabe an result
                     result["success"] = False
-                    result["error_message"] = send_result["error_message"]  
+                    result["error_message"] = send_result["error_message"]
                     return result
 
                 result["sent_count"] += 1
@@ -725,7 +723,6 @@ class StudentManagerController:
             result["error_message"] = str(e)
             return result
 
-        
         # Schleife ueber alle Studenten im Kurs
 
         for student in students_list:
