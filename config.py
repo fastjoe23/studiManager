@@ -8,7 +8,7 @@ class Config:
         self.app_name = "DHBW Student Management System"
         self.version = "0.1"
         self.data_base_name = "studiManagerDatabase.db"
-        self.data_base_version = "0.1"
+        self.data_base_version = "0.2"
         # Logging
         self.log_level = "DEBUG"
         self.log_format = "%(asctime)s - %(levelname)s - %(module)s -  %(message)s"
