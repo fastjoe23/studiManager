@@ -6,7 +6,7 @@ class Config:
     def __init__(self):
         # Konstante Werte
         self.app_name = "DHBW Student Management System"
-        self.version = "0.1"
+        self.version = "0.2"
         self.data_base_name = "studiManagerDatabase.db"
         self.data_base_version = "0.2"
         # Logging

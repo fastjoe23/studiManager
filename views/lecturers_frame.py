@@ -49,6 +49,9 @@ class LecturersFrame(tk.Frame):
         update_button = tk.Button(self, text="Dozenten ändern", command=self.update_selected_lecturer)
         update_button.pack(side=tk.LEFT, padx=5, pady=5)
 
+        mail_export_button = tk.Button(self, text="Gutachter Mailadressen", command=self.export_reviewers_mail_addresses)
+        mail_export_button.pack(side=tk.LEFT, padx=5, pady=5)
+
         close_button = tk.Button(self, text="Schliessen", command=self.close_frame)
         close_button.pack(side=tk.LEFT, padx=5, pady=5)
 
@@ -128,6 +131,37 @@ class LecturersFrame(tk.Frame):
         add_lecturer_window.grab_set()  # Sperrt das Hauptfenster, während das Unterfenster geöffnet ist
         add_lecturer_window.wait_window()  # Blockiert das Hauptfenster, bis das Unterfenster geschlossen wird
         self.refresh_table()
+
+    def export_reviewers_mail_addresses(self):
+        # Alle Gutachter exportieren
+        lecturers = self.master.controller.read_all_lecturers()
+        mail_addresses = [lecturer.email.strip() for lecturer in lecturers if (lecturer.is_reviewer and lecturer.email)]
+
+        # Fenster mit entry-field für alle Email-Adressen
+        email_window = tk.Toplevel(self)
+        email_window.title("Gutachter E-Mail-Adressen")
+
+        email_text = tk.Text(email_window, wrap=tk.WORD)
+        email_text.pack(expand=True, fill=tk.BOTH)
+
+        # Füge alle E-Mail-Adressen in das Textfeld ein
+        email_text.insert(tk.END, ";\n".join(mail_addresses))
+        email_text.config(state=tk.DISABLED)
+
+        # Kopiere alle Email-Adressen in die Zwischenablage
+        self.clipboard_clear()
+        self.clipboard_append(";".join(mail_addresses))
+
+        # Label mit Hinweis, dass alle Adressen in zwischenablage kopiert wurden
+        info_label = tk.Label(email_window, text="Alle E-Mail-Adressen wurden in die Zwischenablage kopiert.")
+        info_label.pack(pady=5)
+
+        # Füge einen Button zum Schließen des Fensters hinzu
+        close_button = tk.Button(email_window, text="Schließen", command=email_window.destroy)
+        close_button.pack(pady=5)
+
+        email_window.grab_set()  # Sperrt das Hauptfenster während des Dialogs
+        email_window.wait_window()  # Blockiert das Hauptfenster, bis das Dialogfenster geschlossen wird
 
     def close_frame(self):
         self.master.show_main_frame()
